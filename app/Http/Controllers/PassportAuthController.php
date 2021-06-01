@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
 use App\Http\Requests\ruleRegister;
 use App\RemoteException;
-use App\Exception;
+//use App\Exception;
+use Exception;
 class PassportAuthController extends Controller
 {
     /**
@@ -56,7 +57,7 @@ class PassportAuthController extends Controller
             // Validate the value...
         } catch (Exception $exception) {
              // Call report() method of App\Exceptions\Handler
-            $this->reportException($e);
+            $this->reportException($exception);
             
             // Call render() method of App\Exceptions\Handler
             $response = $this->renderException($request, $e);

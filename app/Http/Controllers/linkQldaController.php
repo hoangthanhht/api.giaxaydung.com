@@ -3,113 +3,114 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\linkQlda;
+use Exception;
+use Illuminate\Http\Request;
+
 class linkQldaController extends Controller
 {
-         public function show($id)
-        {
-            try{
+    public function show($id)
+    {
+        try {
+            $id = strtolower($id);
             $id = str_replace('.', '-', $id);
-            $host= 'https://qlda.gxd.vn';
-            
+            $host = 'https://qlda.gxd.vn';
+
             $length = strlen($id);
-            $substr1 = substr( $id, 0, $length - 1 ).'0';
-            
-            $substr2 = substr( $id, 0, $length - 2 ).'00';
-            $substr3 = substr( $id, 0, $length - 3 ).'000';
-           $links = linkQlda::first();
-           //foreach ($links as $link) {
+            $substr1 = substr($id, 0, $length - 1) . '0';
+
+            $substr2 = substr($id, 0, $length - 2) . '00';
+            $substr3 = substr($id, 0, $length - 3) . '000';
+            $links = linkQlda::first();
+            //foreach ($links as $link) {
             //dd($links->contentJsonLink);
             $link = $links->contentJsonLink;
             //dd(is_string($links->contentJsonLink));
-           //}
-           $json = json_decode($link, true);
-           $rs;
-           $bool_kt = false;
-           
-           foreach ($json as $value) {
-            $pos = strpos($value, $id);
-            if(!$pos === false)
-            {
-               
-                $rs = $host.$value;
-                $bool_kt = true;
-                return $rs;//response()->json(['link' => $rs], 200);
-                break;
-            }
-           
-        }
-        
-        if($bool_kt === false)
-        {
-            foreach ($json as $value) {
-                $pos1 = strpos($value, $substr1);
-                if(!$pos1 === false)
-                {
-                    $rs = $host.$value;
-                    $bool_kt = true;
-                    return $rs;//response()->json(['link' => $rs], 200);
-                    break;
-                }
-               
-                }
-        }
+            //}
+            $json = json_decode($link, true);
+            $rs;
+            $bool_kt = false;
 
-        if($bool_kt === false)
-        {
             foreach ($json as $value) {
-                $pos2 = strpos($value, $substr2);
-                if(!$pos2 === false)
-                {
-                    $rs = $host.$value;
-                   
+                $pos = strpos($value, $id);
+                if (!$pos === false) {
+
+                    $rs = $host . $value;
                     $bool_kt = true;
-                    return $rs;//response()->json(['link' => $rs], 200);
+                    return $rs; //response()->json(['link' => $rs], 200);
                     break;
                 }
-               
+
             }
-        }
-        if($bool_kt === false)
-        {
-            foreach ($json as $value) {
-                $pos3 = strpos($value, $substr3);
-                if(!$pos3 === false)
-                {
-                    $rs = $host.$value;
-                    $bool_kt = true;
-                    return $rs;//response()->json(['link' => $rs], 200);
-                    break;
+
+            if ($bool_kt === false) {
+                foreach ($json as $value) {
+                    $pos1 = strpos($value, $substr1);
+                    if (!$pos1 === false) {
+                        $rs = $host . $value;
+                        $bool_kt = true;
+                        return $rs; //response()->json(['link' => $rs], 200);
+                        break;
+                    }
+
                 }
-               
+            }
+
+            if ($bool_kt === false) {
+                foreach ($json as $value) {
+                    $pos2 = strpos($value, $substr2);
+                    if (!$pos2 === false) {
+                        $rs = $host . $value;
+
+                        $bool_kt = true;
+                        return $rs; //response()->json(['link' => $rs], 200);
+                        break;
+                    }
+
                 }
+            }
+            if ($bool_kt === false) {
+                foreach ($json as $value) {
+                    $pos3 = strpos($value, $substr3);
+                    if (!$pos3 === false) {
+                        $rs = $host . $value;
+                        $bool_kt = true;
+                        return $rs; //response()->json(['link' => $rs], 200);
+                        break;
+                    }
+
+                }
+            }
+        } catch (Exception $e) {
+            echo "Message: " . $e->getMessage();
+            echo "";
+            echo "getCode(): " . $e->getCode();
+            echo "";
+            echo "__toString(): " . $e->__toString();
         }
     }
-    catch (Exception $e) {
-        echo "Message: " . $e->getMessage();
-        echo "";
-        echo "getCode(): " . $e->getCode();
-        echo "";
-        echo "__toString(): " . $e->__toString();
-    }
-        }
 
-        public function store(Request $request)
-        {
+    public function store(Request $request)
+    {
+        try {
             $beforInsert = linkQlda::all()->count();
-                     
-             $link = linkQlda::firstOrCreate(
+
+            $link = linkQlda::firstOrCreate(
                 [
-                    'contentJsonLink' => $request->contentJsonLink
+                    'contentJsonLink' => $request->contentJsonLink,
                 ]
-               );
+            );
             $afterInsert = linkQlda::all()->count();
-            if($beforInsert !== $afterInsert && $beforInsert >= 1)
-            {
+            if ($beforInsert !== $afterInsert && $beforInsert >= 1) {
                 $links = linkQlda::first()->delete();
             }
-          
-            //return linkQlda::create($request->all());
+        } catch (Exception $e) {
+            echo "Message: " . $e->getMessage();
+            echo "";
+            echo "getCode(): " . $e->getCode();
+            echo "";
+            echo "__toString(): " . $e->__toString();
         }
+        //return linkQlda::create($request->all());
+    }
 }
