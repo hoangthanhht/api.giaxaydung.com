@@ -50,7 +50,7 @@ class linkQldaController extends Controller
                 {
                     $rs = $host.$value;
                     $bool_kt = true;
-                    return response()->json(['link' => $rs], 200);
+                    return $rs;//response()->json(['link' => $rs], 200);
                     break;
                 }
                
@@ -65,7 +65,7 @@ class linkQldaController extends Controller
                 {
                     $rs = $host.$value;
                     $bool_kt = true;
-                    return response()->json(['link' => $rs], 200);
+                    return $rs;//response()->json(['link' => $rs], 200);
                     break;
                 }
                
@@ -79,7 +79,7 @@ class linkQldaController extends Controller
                 {
                     $rs = $host.$value;
                     $bool_kt = true;
-                    return response()->json(['link' => $rs], 200);
+                    return $rs;//response()->json(['link' => $rs], 200);
                     break;
                 }
                
