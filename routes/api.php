@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PassportAuthController;
 use App\Http\Controllers\ReportDayController;
-
+use App\Http\Controllers\linkQldaController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,3 +25,5 @@ Route::group(['middleware' => 'auth:api'], function(){
 Route::middleware('auth:api')->group(function () {
     Route::resource('post/bcday', ReportDayController::class);
 });
+Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
+Route::post('link', [linkQldaController::class, 'store']);
