@@ -10,8 +10,9 @@ class linkQldaController extends Controller
          public function show($id)
         {
 
-
-            $host= 'http://vue.gxd.vn';
+            $id = str_replace('.', '-', $id);
+            $host= 'https:\/\/qlda.gxd.vn';
+            
             $length = strlen($id);
             $substr1 = substr( $id, 0, $length - 1 ).'0';
             
@@ -25,17 +26,64 @@ class linkQldaController extends Controller
            //}
            $json = json_decode($link, true);
            $rs;
+           $bool_kt = false;
+           
            foreach ($json as $value) {
-            $pos1 = strpos($value, $substr1);
-            $pos2 = strpos($value, $substr2);
-            $pos3 = strpos($value, $substr3);
-            if(!$pos1 === false||!$pos2 === false||!$pos3 === false)
+            $pos = strpos($value, $id);
+            if(!$pos === false)
             {
+               
                 $rs = $host.$value;
-                return response()->json(['link' => $rs], 200);
+                $rs = str_replace('\\', '', $rs);
+                $bool_kt = true;
+                return $rs;//response()->json(['link' => $rs], 200);
                 break;
             }
            
+            }
+        
+        if($bool_kt === false)
+        {
+            foreach ($json as $value) {
+                $pos1 = strpos($value, $substr1);
+                if(!$pos1 === false)
+                {
+                    $rs = $host.$value;
+                    $bool_kt = true;
+                    return response()->json(['link' => $rs], 200);
+                    break;
+                }
+               
+                }
+        }
+
+        if($bool_kt === false)
+        {
+            foreach ($json as $value) {
+                $pos2 = strpos($value, $substr2);
+                if(!$pos1 === false)
+                {
+                    $rs = $host.$value;
+                    $bool_kt = true;
+                    return response()->json(['link' => $rs], 200);
+                    break;
+                }
+               
+                }
+        }
+        if($bool_kt === false)
+        {
+            foreach ($json as $value) {
+                $pos3 = strpos($value, $substr3);
+                if(!$pos1 === false)
+                {
+                    $rs = $host.$value;
+                    $bool_kt = true;
+                    return response()->json(['link' => $rs], 200);
+                    break;
+                }
+               
+                }
         }
                  
         }
@@ -50,10 +98,11 @@ class linkQldaController extends Controller
                 ]
                );
             $afterInsert = linkQlda::all()->count();
-            if($beforInsert !== $afterInsert&&$beforInsert>=0)
+            if($beforInsert !== $afterInsert && $beforInsert >= 1)
             {
                 $links = linkQlda::first()->delete();
             }
+          
             //return linkQlda::create($request->all());
         }
 }
