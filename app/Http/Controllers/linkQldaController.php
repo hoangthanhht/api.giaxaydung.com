@@ -9,9 +9,9 @@ class linkQldaController extends Controller
 {
          public function show($id)
         {
-
+            try{
             $id = str_replace('.', '-', $id);
-            $host= 'https:\/\/qlda.gxd.vn';
+            $host= 'https://qlda.gxd.vn';
             
             $length = strlen($id);
             $substr1 = substr( $id, 0, $length - 1 ).'0';
@@ -34,13 +34,12 @@ class linkQldaController extends Controller
             {
                
                 $rs = $host.$value;
-                $rs = str_replace('\\', '', $rs);
                 $bool_kt = true;
                 return $rs;//response()->json(['link' => $rs], 200);
                 break;
             }
            
-            }
+        }
         
         if($bool_kt === false)
         {
@@ -61,21 +60,22 @@ class linkQldaController extends Controller
         {
             foreach ($json as $value) {
                 $pos2 = strpos($value, $substr2);
-                if(!$pos1 === false)
+                if(!$pos2 === false)
                 {
                     $rs = $host.$value;
+                   
                     $bool_kt = true;
                     return $rs;//response()->json(['link' => $rs], 200);
                     break;
                 }
                
-                }
+            }
         }
         if($bool_kt === false)
         {
             foreach ($json as $value) {
                 $pos3 = strpos($value, $substr3);
-                if(!$pos1 === false)
+                if(!$pos3 === false)
                 {
                     $rs = $host.$value;
                     $bool_kt = true;
@@ -85,7 +85,14 @@ class linkQldaController extends Controller
                
                 }
         }
-                 
+    }
+    catch (Exception $e) {
+        echo "Message: " . $e->getMessage();
+        echo "";
+        echo "getCode(): " . $e->getCode();
+        echo "";
+        echo "__toString(): " . $e->__toString();
+    }
         }
 
         public function store(Request $request)
