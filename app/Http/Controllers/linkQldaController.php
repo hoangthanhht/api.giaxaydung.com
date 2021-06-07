@@ -97,13 +97,20 @@ class linkQldaController extends Controller
    {
        $rsNote = '';
         $recordMaDM = DB::table('note_dinhmucs')->where('maDinhMuc', $mhcv)->get();
+      
         // chu y $recordMaDM la 1 colecttion nen phai lap qua de lay tung ban ghi roi moi lay ghiChuDinhMuc
-        if($recordMaDM) {
+        if(count($recordMaDM)>0) {
+            echo('vao');
             foreach ($recordMaDM as $item) {
                 $rsNote = $item->ghiChuDinhMuc;
 
             }   
-            return $rsNote;
+            if($rsNote){
+
+                return response()->json(['noteDM' => $rsNote], 200);
+            }
+        }else{
+            return response()->json(['error' => "Mã không phù hợp"], 400);
         }
 
    }
