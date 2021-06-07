@@ -27,3 +27,6 @@ Route::middleware('auth:api')->group(function () {
 });
 Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
 Route::post('link', [linkQldaController::class, 'store']);
+Route::post('createTableLDm', [linkQldaController::class, 'storeTableDM']);
+Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
+Route::get('test', [linkQldaController::class, 'getDataTableDM']);

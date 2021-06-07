@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\linkQlda;
+use App\Models\noteDinhmuc;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,7 @@ class linkQldaController extends Controller
             //dd(is_string($links->contentJsonLink));
             //}
             $json = json_decode($link, true);
-            $rs;
+            $rs = '';
             $bool_kt = false;
 
             foreach ($json as $value) {
@@ -90,6 +91,97 @@ class linkQldaController extends Controller
         }
     }
 
+   
+    public function getMaDM ($stringLink)
+    {  
+        $pos1 = 0;
+        $pos = strpos($stringLink,'#');
+        $stringLink = substr($stringLink, $pos, strlen($stringLink) - $pos);
+        $pos = strpos($stringLink,'#');
+        $substr = substr($stringLink, $pos + 4, 1);// lấy ra số đầu để kiểm tra
+       if(is_numeric($substr))
+        {
+
+            for($i = $pos; ;$i++) 
+            { 
+               
+                $substr = substr($stringLink, $i + 4, 1);
+                //echo($substr)."<br/>";
+                if (!is_numeric($substr))
+                {
+                    
+                    $pos1 = $i;
+                    break;
+                }
+            }
+            $maDinhMuc = substr($stringLink, $pos + 1 , $pos1 + $pos + 3);
+            $tenMaDinhMuc = substr($stringLink, strlen($maDinhMuc) + 2, strlen($stringLink) - strlen($maDinhMuc));
+            $maDinhMuc = strtoupper($maDinhMuc);
+            $maDinhMuc = str_replace('-', '.', $maDinhMuc);
+            return[$maDinhMuc,$tenMaDinhMuc];
+        }
+    }
+
+
+    public function storeTableDM ()
+    {
+        $obj = new linkQldaController();
+        $links = linkQlda::first();
+
+        $link = $links->contentJsonLink;
+
+        $json = json_decode($link, true);
+        
+        foreach ($json as $value) {
+            $result = $obj->getMaDM($value);
+            if($result)
+            {
+                noteDinhmuc::create([
+                    'maDinhMuc' => $result[0],
+                    'tenMaDinhMuc' => $result[1],
+                    
+                ]);
+            }
+
+        }
+    }
+
+
+    public function getDataTableDM ()
+    {
+        $dinhMuc = noteDinhmuc::all(); // hàm all sẽ lất ra tất cả sản phẩm
+        // $posts = auth()->user()->posts;
+ 
+        return response()->json([
+            'success' => true,
+            'data' => $dinhMuc
+        ]);
+    }
+
+
+    public function updateDataDm(Request $request, $id)
+    {
+        $itemupdate = noteDinhmuc::find($id);
+        if (!$itemupdate) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found'
+            ], 400);
+        }
+ 
+        $updated = $itemupdate->fill($request->all())->save();
+ 
+        if ($updated)
+            return response()->json([
+                'success' => true
+            ]);
+        else
+            return response()->json([
+                'success' => false,
+                'message' => 'Post can not be updated'
+            ], 500);
+    }
+
     public function store(Request $request)
     {
         try {
@@ -104,6 +196,7 @@ class linkQldaController extends Controller
             if ($beforInsert !== $afterInsert && $beforInsert >= 1) {
                 $links = linkQlda::first()->delete();
             }
+
         } catch (Exception $e) {
             echo "Message: " . $e->getMessage();
             echo "";
