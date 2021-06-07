@@ -7,7 +7,7 @@ use App\Models\linkQlda;
 use App\Models\noteDinhmuc;
 use Exception;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class linkQldaController extends Controller
 {
     public function show($id)
@@ -31,55 +31,57 @@ class linkQldaController extends Controller
             $json = json_decode($link, true);
             $rs = '';
             $bool_kt = false;
+            if($json) {
 
-            foreach ($json as $value) {
-                $pos = strpos($value, $id);
-                if (!$pos === false) {
-
-                    $rs = $host . $value;
-                    $bool_kt = true;
-                    return $rs; //response()->json(['link' => $rs], 200);
-                    break;
-                }
-
-            }
-
-            if ($bool_kt === false) {
                 foreach ($json as $value) {
-                    $pos1 = strpos($value, $substr1);
-                    if (!$pos1 === false) {
+                    $pos = strpos($value, $id);
+                    if (!$pos === false) {
+    
                         $rs = $host . $value;
                         $bool_kt = true;
                         return $rs; //response()->json(['link' => $rs], 200);
                         break;
                     }
-
+    
                 }
-            }
-
-            if ($bool_kt === false) {
-                foreach ($json as $value) {
-                    $pos2 = strpos($value, $substr2);
-                    if (!$pos2 === false) {
-                        $rs = $host . $value;
-
-                        $bool_kt = true;
-                        return $rs; //response()->json(['link' => $rs], 200);
-                        break;
+    
+                if ($bool_kt === false) {
+                    foreach ($json as $value) {
+                        $pos1 = strpos($value, $substr1);
+                        if (!$pos1 === false) {
+                            $rs = $host . $value;
+                            $bool_kt = true;
+                            return $rs; //response()->json(['link' => $rs], 200);
+                            break;
+                        }
+    
                     }
-
                 }
-            }
-            if ($bool_kt === false) {
-                foreach ($json as $value) {
-                    $pos3 = strpos($value, $substr3);
-                    if (!$pos3 === false) {
-                        $rs = $host . $value;
-                        $bool_kt = true;
-                        return $rs; //response()->json(['link' => $rs], 200);
-                        break;
+    
+                if ($bool_kt === false) {
+                    foreach ($json as $value) {
+                        $pos2 = strpos($value, $substr2);
+                        if (!$pos2 === false) {
+                            $rs = $host . $value;
+    
+                            $bool_kt = true;
+                            return $rs; //response()->json(['link' => $rs], 200);
+                            break;
+                        }
+    
                     }
-
+                }
+                if ($bool_kt === false) {
+                    foreach ($json as $value) {
+                        $pos3 = strpos($value, $substr3);
+                        if (!$pos3 === false) {
+                            $rs = $host . $value;
+                            $bool_kt = true;
+                            return $rs; //response()->json(['link' => $rs], 200);
+                            break;
+                        }
+    
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -91,7 +93,22 @@ class linkQldaController extends Controller
         }
     }
 
-   
+   public function getNoteDM($mhcv)
+   {
+       $rsNote = '';
+        $recordMaDM = DB::table('note_dinhmucs')->where('maDinhMuc', $mhcv)->get();
+        // chu y $recordMaDM la 1 colecttion nen phai lap qua de lay tung ban ghi roi moi lay ghiChuDinhMuc
+        if($recordMaDM) {
+            foreach ($recordMaDM as $item) {
+                $rsNote = $item->ghiChuDinhMuc;
+
+            }   
+            return $rsNote;
+        }
+
+   }
+
+
     public function getMaDM ($stringLink)
     {  
         $pos1 = 0;
@@ -123,6 +140,40 @@ class linkQldaController extends Controller
     }
 
 
+    public function store(Request $request)
+    {
+        try {
+            $obj = new linkQldaController();
+            $beforInsert = linkQlda::all()->count();
+
+                linkQlda::firstOrCreate(
+                [
+                    'contentJsonLink' => $request->contentJsonLink,
+                ]
+            );
+            $afterInsert = linkQlda::all()->count();
+
+            if(($beforInsert !== $afterInsert && $beforInsert == 0) || 
+            ($beforInsert == $afterInsert && $beforInsert == 1))
+            {
+               
+                $obj->storeTableDM();
+            }
+            if ($beforInsert !== $afterInsert && $beforInsert >= 1) {
+                linkQlda::first()->delete();
+                $obj->storeTableDM();
+            }
+
+        } catch (Exception $e) {
+            echo "Message: " . $e->getMessage();
+            echo "";
+            echo "getCode(): " . $e->getCode();
+            echo "";
+            echo "__toString(): " . $e->__toString();
+        }
+        //return linkQlda::create($request->all());
+    }
+
     public function storeTableDM ()
     {
         $obj = new linkQldaController();
@@ -132,16 +183,40 @@ class linkQldaController extends Controller
 
         $json = json_decode($link, true);
         
+        $dmSavedArr = [];
+        $dmSaved = DB::table('note_dinhmucs')
+                    ->whereNotNull('ghiChuDinhMuc')
+                    ->get();
+        DB::table('note_dinhmucs')
+                    ->whereNull('ghiChuDinhMuc')
+                    ->delete();
+        foreach ($dmSaved as $item) {
+            array_push($dmSavedArr, $item->maDinhMuc);
+
+        }    
         foreach ($json as $value) {
             $result = $obj->getMaDM($value);
+            $checkCreate = true;
             if($result)
+            {
+
+            foreach ($dmSavedArr as $item) {
+               
+                if($result[0] === $item) {
+
+                    $checkCreate = false;
+                    break;
+                }
+            }
+            if($checkCreate == true)
             {
                 noteDinhmuc::create([
                     'maDinhMuc' => $result[0],
-                    'tenMaDinhMuc' => $result[1],
-                    
+                    'tenMaDinhMuc' => $result[1],                     
                 ]);
+
             }
+        }
 
         }
     }
@@ -170,10 +245,10 @@ class linkQldaController extends Controller
         }
  
         $updated = $itemupdate->fill($request->all())->save();
- 
         if ($updated)
             return response()->json([
-                'success' => true
+                'success' => true,
+                'data'=>$request->all()
             ]);
         else
             return response()->json([
@@ -182,28 +257,5 @@ class linkQldaController extends Controller
             ], 500);
     }
 
-    public function store(Request $request)
-    {
-        try {
-            $beforInsert = linkQlda::all()->count();
-
-            $link = linkQlda::firstOrCreate(
-                [
-                    'contentJsonLink' => $request->contentJsonLink,
-                ]
-            );
-            $afterInsert = linkQlda::all()->count();
-            if ($beforInsert !== $afterInsert && $beforInsert >= 1) {
-                $links = linkQlda::first()->delete();
-            }
-
-        } catch (Exception $e) {
-            echo "Message: " . $e->getMessage();
-            echo "";
-            echo "getCode(): " . $e->getCode();
-            echo "";
-            echo "__toString(): " . $e->__toString();
-        }
-        //return linkQlda::create($request->all());
-    }
+   
 }

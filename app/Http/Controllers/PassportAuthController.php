@@ -60,7 +60,7 @@ class PassportAuthController extends Controller
             $this->reportException($exception);
             
             // Call render() method of App\Exceptions\Handler
-            $response = $this->renderException($request, $e);
+            $response = $this->renderException($request, $exception);
         
         }
     }

@@ -29,4 +29,6 @@ Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
 Route::post('link', [linkQldaController::class, 'store']);
 Route::post('createTableLDm', [linkQldaController::class, 'storeTableDM']);
 Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
-Route::get('test', [linkQldaController::class, 'getDataTableDM']);
+Route::post('updateDataDm/{id}', [linkQldaController::class, 'updateDataDm']);
+Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
+Route::get('test/{id}', [linkQldaController::class, 'getNoteDM']);
