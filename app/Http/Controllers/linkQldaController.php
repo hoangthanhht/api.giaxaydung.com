@@ -10,18 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class linkQldaController extends Controller
 {
-    public function show($id)
+    public function show($mhcv)
     {
         try {
-            $id = strtolower($id);
-            $id = str_replace('.', '-', $id);
+            $mhcv = strtolower($mhcv);
+            $mhcv = str_replace('.', '-', $mhcv);
             $host = 'https://qlda.gxd.vn';
 
-            $length = strlen($id);
-            $substr1 = substr($id, 0, $length - 1) . '0';
+            $length = strlen($mhcv);
+            $substr1 = substr($mhcv, 0, $length - 1) . '0';
 
-            $substr2 = substr($id, 0, $length - 2) . '00';
-            $substr3 = substr($id, 0, $length - 3) . '000';
+            $substr2 = substr($mhcv, 0, $length - 2) . '00';
+            $substr3 = substr($mhcv, 0, $length - 3) . '000';
             $links = linkQlda::first();
             //foreach ($links as $link) {
             //dd($links->contentJsonLink);
@@ -34,7 +34,7 @@ class linkQldaController extends Controller
             if($json) {
 
                 foreach ($json as $value) {
-                    $pos = strpos($value, $id);
+                    $pos = strpos($value, $mhcv);
                     if (!$pos === false) {
     
                         $rs = $host . $value;
@@ -95,12 +95,27 @@ class linkQldaController extends Controller
 
    public function getNoteDM($mhcv)
    {
-       $rsNote = '';
-        $recordMaDM = DB::table('note_dinhmucs')->where('maDinhMuc', $mhcv)->get();
+        $strArr = [];
+        $length = strlen($mhcv);
+        array_push($strArr, $mhcv);
+        $substr1 = substr($mhcv, 0, $length - 1) . '0';
+        array_push($strArr, $substr1);
+        $substr2 = substr($mhcv, 0, $length - 2) . '00';
+        array_push($strArr, $substr2);
+        $substr3 = substr($mhcv, 0, $length - 3) . '000';
+        array_push($strArr, $substr3);
+        $rsNote = '';
+        foreach ($strArr as $item) {
+            $recordMaDM = DB::table('note_dinhmucs')->where('maDinhMuc', $item)->get();
+            if(count($recordMaDM)>0)
+            {
+                break;
+            }
+
+        }   
       
         // chu y $recordMaDM la 1 colecttion nen phai lap qua de lay tung ban ghi roi moi lay ghiChuDinhMuc
         if(count($recordMaDM)>0) {
-            echo('vao');
             foreach ($recordMaDM as $item) {
                 $rsNote = $item->ghiChuDinhMuc;
 
