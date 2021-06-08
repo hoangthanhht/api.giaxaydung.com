@@ -32,4 +32,6 @@ Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
 Route::post('updateDataDm/{id}', [linkQldaController::class, 'updateDataDm']);
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 
+
+
 Route::get('test/{id}', [linkQldaController::class, 'show']);

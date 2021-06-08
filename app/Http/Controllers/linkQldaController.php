@@ -142,6 +142,7 @@ class linkQldaController extends Controller
             $tenMaDinhMuc = substr($stringLink, strlen($maDinhMuc) + 2, strlen($stringLink) - strlen($maDinhMuc));
             $maDinhMuc = strtoupper($maDinhMuc);
             $maDinhMuc = str_replace('-', '.', $maDinhMuc);
+            $tenMaDinhMuc = str_replace('-', ' ', $tenMaDinhMuc);
             return[$maDinhMuc,$tenMaDinhMuc];
         }
     }
