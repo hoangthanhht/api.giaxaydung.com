@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator; 
 use App\Http\Requests\ruleRegister;
 use App\RemoteException;
-//use App\Exception;
+use Illuminate\Support\Facades\DB;
 use Exception;
 class PassportAuthController extends Controller
 {
@@ -80,8 +80,10 @@ class PassportAuthController extends Controller
             //$user = Auth::user(); 
             
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-
-            return response()->json(['token' => $token], 200);
+            $user = DB::table('users')->where('email', $request->email)->get();
+            return response()->json(['token' => $token,
+                                      'user' => $user                 
+                                            ], 200);
         } else {
             return response()->json(['error' => 'Mật khẩu hoặc password không đúng',
                                      'status'=> '401'
