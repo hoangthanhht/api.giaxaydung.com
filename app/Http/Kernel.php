@@ -40,7 +40,8 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:api',
+            //'throttle:api',
+            'throttle:60,1',// khắc phục lỗi 429 serve
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];

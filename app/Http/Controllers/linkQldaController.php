@@ -130,7 +130,7 @@ class linkQldaController extends Controller
 
    }
 
-
+   // hàm tách chuỗi để đưa vào bảng định mức
     public function getMaDM ($stringLink)
     {  
         $pos1 = 0;
