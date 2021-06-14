@@ -6,16 +6,17 @@ use App\Models\giaVatTu;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-header("Access-Control-Allow-Methods: GET, POST");
 class giaVatTuController extends Controller
 {
     public function store(Request $request)
     {
+        $arrTemp = [];
       $arrData= json_decode($request->jsonData);
       //DB::beginTransaction();// đảm bảo tính toàn vẹn dữ liệu
         try {
             foreach ($arrData as $item) {             
-                 giaVatTu::create([
+                 //giaVatTu::create([
+                    array_push($arrTemp,[
                     'maVatTu' => $item->mavattu ? $item->mavattu : null,
                     'tenVatTu' => $item->tenvattu ? $item->tenvattu :null,
                     'donVi' => $item->donvi ? $item->donvi : null,
@@ -24,7 +25,10 @@ class giaVatTuController extends Controller
                     'khuVuc' => $item->khuvuc ? $item->khuvuc : null,
                     
                 ]);
+                
             } 
+            giaVatTu::insert($arrTemp);// phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
+            // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
             //DB::commit();
             return response()->json([
                 'code'=> 200,

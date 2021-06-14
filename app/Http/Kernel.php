@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             //'throttle:api',
             'throttle:60,1',// khắc phục lỗi 429 serve
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Fruitcake\Cors\HandleCors::class,
         ],
     ];
 

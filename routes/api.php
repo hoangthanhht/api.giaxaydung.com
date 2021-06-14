@@ -39,7 +39,7 @@ Route::post('updateDataDm/{id}', [linkQldaController::class, 'updateDataDm']);
 // trả ghi chú đinh mức cho phần mềm
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 // đưa dữ liệu từ bảng excel vào data base
-Route::post('createGiaVT', [giaVatTuController::class, 'store'])->middleware('cors');
+Route::post('createGiaVT', [giaVatTuController::class, 'store']);
 // lấy dữ liệu giá về từ data base
 Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT']);
 
