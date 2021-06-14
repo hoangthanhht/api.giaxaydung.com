@@ -6,6 +6,8 @@ use App\Models\giaVatTu;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+header('Access-Control-Allow-Origin', '*');
+header("Access-Control-Allow-Methods: GET, POST");
 class giaVatTuController extends Controller
 {
     public function store(Request $request)
