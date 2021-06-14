@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\linkQlda;
@@ -7,13 +6,13 @@ use App\Models\giaVatTu;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+header("Access-Control-Allow-Methods: GET, POST");
 class giaVatTuController extends Controller
 {
     public function store(Request $request)
     {
       $arrData= json_decode($request->jsonData);
-      DB::beginTransaction();// đảm bảo tính toàn vẹn dữ liệu
+      //DB::beginTransaction();// đảm bảo tính toàn vẹn dữ liệu
         try {
             foreach ($arrData as $item) {             
                  giaVatTu::create([
@@ -26,17 +25,18 @@ class giaVatTuController extends Controller
                     
                 ]);
             } 
-            DB::commit();
+            //DB::commit();
             return response()->json([
                 'code'=> 200,
                 'message' => 'Lưu xong giá vật tư',
             ]);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json([
-                'code'=> 500,
-                'message' => 'Không lưu được giá vật tư',
-            ]);
+
+            // return response()->json([
+            //     'code'=> 500,
+            //     'message' => 'Không lưu được giá vật tư',
+            // ]);
              // Call report() method of App\Exceptions\Handler
             $this->reportException($exception);
             
