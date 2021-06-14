@@ -237,6 +237,7 @@ class linkQldaController extends Controller
 
         }
         noteDinhmuc::insert($dmTableArr);
+        $dmTableArr=[];
     }
 
     public function getDataTableDM()

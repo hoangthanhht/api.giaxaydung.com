@@ -30,6 +30,7 @@ class giaVatTuController extends Controller
             giaVatTu::insert($arrTemp);// phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
             // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
             //DB::commit();
+            $arrTemp=[];
             return response()->json([
                 'code'=> 200,
                 'message' => 'Lưu xong giá vật tư',
