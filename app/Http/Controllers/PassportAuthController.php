@@ -81,9 +81,14 @@ class PassportAuthController extends Controller
             
             $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
             //$user = DB::table('users')->where('email', $request->email)->get();
-            $user = Auth::user(); 
+            $user = Auth::user();
+            $arrSlug=[];
+            foreach ($user->roles()->get() as $item) {
+                array_push($arrSlug, $item->slug); 
+            }
             return response()->json(['token' => $token,
-                                      'user' => $user                 
+                                      'user' => $user,
+                                      'slug' => $arrSlug                 
                                             ], 200);
         } else {
             return response()->json(['error' => 'Mật khẩu hoặc password không đúng',
@@ -93,6 +98,8 @@ class PassportAuthController extends Controller
 
         }
     }   
+
+
     public function details() 
     {
         $user = Auth::user(); 

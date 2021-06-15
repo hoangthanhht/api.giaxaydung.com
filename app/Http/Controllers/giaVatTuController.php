@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\DB;
 //header("Access-Control-Allow-Methods: GET, POST");
 class giaVatTuController extends Controller
 {
+
     public function store(Request $request)
     {
         $arrTemp = [];
       $arrData= json_decode($request->jsonData);
-      //DB::beginTransaction();// đảm bảo tính toàn vẹn dữ liệu
+      DB::beginTransaction();// đảm bảo tính toàn vẹn dữ liệu
         try {
             foreach ($arrData as $item) {             
                  //giaVatTu::create([
@@ -31,7 +32,7 @@ class giaVatTuController extends Controller
             } 
             giaVatTu::insert($arrTemp);// phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
             // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
-            //DB::commit();
+            DB::commit();
             $arrTemp=[];
             return response()->json([
                 'code'=> 200,

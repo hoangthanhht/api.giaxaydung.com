@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\linkQlda;
 use App\Models\noteDinhmuc;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -192,12 +193,12 @@ class linkQldaController extends Controller
         //return linkQlda::create($request->all());
     }
 
-    public function storeTableDM(Request $request)
+    public function storeTableDM()
     {
         $obj = new linkQldaController();
         $links = linkQlda::first();
 
-        $link = $request->contentJsonLink;
+        $link = $links->contentJsonLink;
 
         $json = json_decode($link, true);
         $dmTableArr = []; //mảng chứa các bản ghi sẽ đc ghi vào db để tránh trường hợp số lượng bản ghi lớn gặp lỗi
@@ -237,7 +238,7 @@ class linkQldaController extends Controller
 
         }
         noteDinhmuc::insert($dmTableArr);
-        $dmTableArr=[];
+        $dmTableArr = [];
     }
 
     public function getDataTableDM()
@@ -251,27 +252,37 @@ class linkQldaController extends Controller
         ]);
     }
 
-    public function updateDataDm(Request $request, $id)
+    public function updateDataDm(Request $request, $iddm, $iduser)
     {
-        $itemupdate = noteDinhmuc::find($id);
-        if (!$itemupdate) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Post not found',
-            ], 400);
-        }
+        $user = User::find($iduser);
+        // $pm = $u->getAllPermissions($u->permissions[0]);
+        if ($user->can('create-task')) {
+            $itemupdate = noteDinhmuc::find($iddm);
+            if (!$itemupdate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post not found',
+                ], 400);
+            }
 
-        $updated = $itemupdate->fill($request->all())->save();
-        if ($updated) {
-            return response()->json([
-                'success' => true,
-                'data' => $request->all(),
-            ]);
-        } else {
-            return response()->json([
+            $updated = $itemupdate->fill($request->all())->save();
+            if ($updated) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $request->all(),
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post can not be updated',
+                ], 500);
+            }
+        }
+        else {
+            return response([
                 'success' => false,
-                'message' => 'Post can not be updated',
-            ], 500);
+                'message' => 'Bạn không có quyền thực hiện tác vụ này'
+            ],200);
         }
 
     }

@@ -35,7 +35,7 @@ Route::post('createTableLDm', [linkQldaController::class, 'storeTableDM']);
 //lây du liệu từ bảng để hiển thị ra view front end
 Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
 //api đẻ chỉnh sửa đinh mức
-Route::post('updateDataDm/{id}', [linkQldaController::class, 'updateDataDm']);
+Route::post('updateDataDm/{id}/{iduser}', [linkQldaController::class, 'updateDataDm']);
 // trả ghi chú đinh mức cho phần mềm
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 // đưa dữ liệu từ bảng excel vào data base
@@ -45,4 +45,4 @@ Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT'
 
 
 
-Route::get('test/{id}', [linkQldaController::class, 'show']);
+Route::get('test', [PassportAuthController::class, 'test']);
