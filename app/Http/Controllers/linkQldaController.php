@@ -192,12 +192,12 @@ class linkQldaController extends Controller
         //return linkQlda::create($request->all());
     }
 
-    public function storeTableDM()
+    public function storeTableDM(Request $request)
     {
         $obj = new linkQldaController();
         $links = linkQlda::first();
 
-        $link = $links->contentJsonLink;
+        $link = $request->contentJsonLink;
 
         $json = json_decode($link, true);
         $dmTableArr = []; //mảng chứa các bản ghi sẽ đc ghi vào db để tránh trường hợp số lượng bản ghi lớn gặp lỗi
