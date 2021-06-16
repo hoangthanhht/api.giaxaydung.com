@@ -6,6 +6,7 @@ use App\Http\Controllers\PassportAuthController;
 use App\Http\Controllers\ReportDayController;
 use App\Http\Controllers\linkQldaController;
 use App\Http\Controllers\giaVatTuController;
+use App\Http\Controllers\AdminUserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -42,7 +43,10 @@ Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 Route::post('createGiaVT', [giaVatTuController::class, 'store']);
 // lấy dữ liệu giá về từ data base
 Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT']);
-
+// lấy dữ liệu user và role về từ data base
+Route::get('getDataTableUser', [AdminUserController::class, 'index']);
+// tao user va role
+Route::post('createUser', [AdminUserController::class, 'store']);
 
 
 Route::get('test', [PassportAuthController::class, 'test']);
