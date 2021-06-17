@@ -25,8 +25,7 @@ class giaVatTuController extends Controller
                     'donVi' => $item->donvi ? $item->donvi : null,
                     'nguon' => $item->nguon ? $item->nguon : null,
                     'ghiChu' => $item->ghichu ? $item->ghichu : null,
-                    'khuVuc' => $item->khuvuc ? $item->khuvuc : null,
-                    
+                    'khuVuc' => $item->khuvuc ? $item->khuvuc : null,                   
                 ]);
                 
             } 

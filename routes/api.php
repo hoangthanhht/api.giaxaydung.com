@@ -47,6 +47,7 @@ Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT'
 Route::get('getDataTableUser', [AdminUserController::class, 'index']);
 // tao user va role
 Route::post('createUser', [AdminUserController::class, 'store']);
-
+// edit user va role
+Route::post('updateUser/{id}', [AdminUserController::class, 'update']);
 
 Route::get('test', [PassportAuthController::class, 'test']);
