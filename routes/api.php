@@ -49,5 +49,7 @@ Route::get('getDataTableUser', [AdminUserController::class, 'index']);
 Route::post('createUser', [AdminUserController::class, 'store']);
 // edit user va role
 Route::post('updateUser/{id}', [AdminUserController::class, 'update']);
+// delete user va role
+Route::post('deleteUser/{id}', [AdminUserController::class, 'delete']);
 
 Route::get('test', [PassportAuthController::class, 'test']);

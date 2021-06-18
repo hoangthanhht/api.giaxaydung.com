@@ -83,6 +83,7 @@ class PassportAuthController extends Controller
             //$user = DB::table('users')->where('email', $request->email)->get();
             $user = Auth::user();
             $arrSlug=[];
+            //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
             foreach ($user->roles()->get() as $item) {
                 array_push($arrSlug, $item->slug); 
             }
