@@ -123,7 +123,7 @@ class linkQldaController extends Controller
             }
             if ($rsNote) {
 
-                return response()->json(['noteDM' => $rsNote], 200);
+                return $rsNote;
             }
         } else {
             return response()->json(['error' => "Mã không phù hợp"], 400);

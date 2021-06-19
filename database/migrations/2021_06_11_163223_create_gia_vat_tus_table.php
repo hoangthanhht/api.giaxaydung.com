@@ -14,13 +14,15 @@ class CreateGiaVatTusTable extends Migration
     public function up()
     {
         Schema::create('gia_vat_tus', function (Blueprint $table) {
-            $table->id();
+            $table->id();// cái này tương đương với biginterger trong larave.
             $table->longText('maVatTu')->nullable(); 
             $table->longText('tenVatTu')->nullable(); 
             $table->longText('donVi')->nullable(); 
-            $table->longText('nguon')->nullable(); 
+            $table->longText('giaVatTu')->nullable();// bao gồm tỉnh khu vực, thời gian
             $table->longText('ghiChu')->nullable(); 
-            $table->longText('khuVuc')->nullable(); 
+            $table->longText('nguon')->nullable(); 
+            $table->longText('tinh')->nullable(); 
+            $table->longText('tacGia')->nullable(); 
             $table->timestamps();
         });
     }
