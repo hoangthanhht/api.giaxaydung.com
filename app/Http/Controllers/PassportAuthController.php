@@ -104,7 +104,15 @@ class PassportAuthController extends Controller
     public function details() 
     {
         $user = Auth::user(); 
+        $arrSlug=[];
+        //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
+        foreach ($user->roles()->get() as $item) {
+            array_push($arrSlug, $item->slug); 
+        }
         $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-        return response()->json(['token' => $token,'user' => $user], 200); 
+        return response()->json(['token' => $token,
+                                 'user' => $user,
+                                 'slug' => $arrSlug 
+                                ], 200); 
     } 
 }
