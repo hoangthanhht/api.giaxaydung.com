@@ -224,14 +224,28 @@ class giaVatTuController extends Controller
 
     }
 
-    public function getDataTableGiaVT()
+
+    public function getAllDataTableGiaVT()
     {
         $giaVt = giaVatTu::all(); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
-
+        
         return response()->json([
             'success' => true,
             'data' => $giaVt,
+            
         ]);
+    }
+
+    public function getDataTableGiaVT()
+    {
+        //$giaVt = giaVatTu::all(); // hàm all sẽ lất ra tất cả sản phẩm
+        // $posts = auth()->user()->posts;
+        $giaVt = giaVatTu::paginate(20);
+        return response()->json(
+            // 'success' => true,
+            // 'data' => $giaVt,
+            $giaVt
+        );
     }
 }

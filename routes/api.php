@@ -7,6 +7,8 @@ use App\Http\Controllers\ReportDayController;
 use App\Http\Controllers\linkQldaController;
 use App\Http\Controllers\giaVatTuController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminRoleController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -33,8 +35,10 @@ Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
 Route::post('link', [linkQldaController::class, 'store']);
 // tạo bảng định mức từ link lấy về từ qlda
 Route::post('createTableLDm', [linkQldaController::class, 'storeTableDM']);
-//lây du liệu từ bảng để hiển thị ra view front end
+//lây du liệu từ bảng để hiển thị ra view front end co pagination
 Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
+//lây tat ca du liệu từ bảng để hiển thị ra view front end khong co pagination
+Route::get('getAllDataTableDm', [linkQldaController::class, 'getAllDataTableDm']);
 //api đẻ chỉnh sửa đinh mức
 Route::post('updateDataDm/{id}/{iduser}', [linkQldaController::class, 'updateDataDm']);
 // trả ghi chú đinh mức cho phần mềm
@@ -43,10 +47,15 @@ Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
 //api đẻ chỉnh sửa gia vật tư
 Route::post('updateDataGiaVatTu/{id}', [giaVatTuController::class, 'updateDataGiaVatTu']);
-// lấy dữ liệu giá về từ data base
+// lấy dữ liệu giá co phan trang về từ data base
 Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT']);
+// lấy tat ca dữ liệu giá về từ data base
+Route::get('getAllDataTableGiaVT', [giaVatTuController::class, 'getAllDataTableGiaVT']);
+
 // lấy dữ liệu user và role về từ data base
 Route::get('getDataTableUser', [AdminUserController::class, 'index']);
+// lấy dữ liệu role về từ data base
+Route::get('getDataTableRole', [AdminRoleController::class, 'index']);
 // tao user va role
 Route::post('createUser', [AdminUserController::class, 'store']);
 // edit user va role

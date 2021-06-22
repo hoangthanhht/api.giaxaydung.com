@@ -240,8 +240,8 @@ class linkQldaController extends Controller
         noteDinhmuc::insert($dmTableArr);
         $dmTableArr = [];
     }
-
-    public function getDataTableDM()
+    
+    public function getAllDataTableDm()
     {
         $dinhMuc = noteDinhmuc::all(); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
@@ -251,6 +251,16 @@ class linkQldaController extends Controller
             'data' => $dinhMuc,
         ]);
     }
+
+
+    public function getDataTableDM()
+    {
+        $dinhMuc = noteDinhmuc::paginate(20); // hàm all sẽ lất ra tất cả sản phẩm
+        // $posts = auth()->user()->posts;
+
+        return response()->json($dinhMuc);
+    }
+
 
     public function updateDataDm(Request $request, $iddm, $iduser)
     {
