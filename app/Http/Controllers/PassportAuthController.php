@@ -36,7 +36,7 @@ class PassportAuthController extends Controller
             
             if (isset($request->validator) && $request->validator->fails()) {
                 return response()->json([
-                    'error_code'=> 500, 
+                    'code'=> 500, 
                     'message'   => $request->validator->errors()->first(),//$validator->errors()->first(),
                     'errors'    => $request->validator->errors() //hoặc $validator->errors()->toArray(),
                 ]);
@@ -49,11 +49,21 @@ class PassportAuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
-                'role' => 'user',
+               
             ]);
            
             $token = $user->createToken('LaravelAuthApp')->accessToken;
-            return response()->json(['token' => $token], 200);
+
+            $arrSlug=[];
+            //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
+            foreach ($user->roles()->get() as $item) {
+                array_push($arrSlug, $item->slug); 
+            }
+
+            return response()->json(['token' => $token,
+                                    'user' => $user,
+                                    'slug' => $arrSlug                 
+                                        ], 200);
             // Validate the value...
         } catch (Exception $exception) {
              // Call report() method of App\Exceptions\Handler

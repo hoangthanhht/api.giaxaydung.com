@@ -44,18 +44,24 @@ class DatabaseSeeder extends Seeder
         $guest->save();
 
         $createTasks = new Permission();
-        $createTasks->slug = 'create-tasks';
-        $createTasks->name = 'Create Tasks';
+        $createTasks->slug = 'create-gia-vat-tu';
+        $createTasks->name = 'Create Gia Vat tu';
         $createTasks->save();
 
+        $createTasks = new Permission();
+        $createTasks->slug = 'edit-dinh-muc';
+        $createTasks->name = 'Edit Dinh Muc';
+        $createTasks->save();
+
+
         $deleteTasks = new Permission();
-        $deleteTasks->slug = 'delete-tasks';
-        $deleteTasks->name = 'Delete Tasks';
+        $deleteTasks->slug = 'delete-gia-vat-tu';
+        $deleteTasks->name = 'Delete Gia Vat tu';
         $deleteTasks->save();
 
         $editTasks = new Permission();
-        $editTasks->slug = 'edit-tasks';
-        $editTasks->name = 'Edit Tasks';
+        $editTasks->slug = 'edit-gia-vat-tu';
+        $editTasks->name = 'Edit Gia Vat tu';
         $editTasks->save();
 
         $viewUsers = new Permission();

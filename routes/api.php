@@ -46,7 +46,7 @@ Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 // đưa dữ liệu từ bảng excel vào data base
 Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
 //api đẻ chỉnh sửa gia vật tư
-Route::post('updateDataGiaVatTu/{id}', [giaVatTuController::class, 'updateDataGiaVatTu']);
+Route::post('updateDataGiaVatTu/{id}/{iduser}', [giaVatTuController::class, 'updateDataGiaVatTu']);
 // lấy dữ liệu giá co phan trang về từ data base
 Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT']);
 // lấy tat ca dữ liệu giá về từ data base
@@ -62,6 +62,19 @@ Route::post('createUser', [AdminUserController::class, 'store']);
 Route::post('updateUser/{id}', [AdminUserController::class, 'update']);
 // delete user va role
 Route::post('deleteUser/{id}', [AdminUserController::class, 'delete']);
+
+// edit role
+Route::post('updateRole/{id}', [AdminRoleController::class, 'update']);
+
+// delete role
+Route::post('deleteRole/{id}', [AdminRoleController::class, 'delete']);
+
+// tao role
+Route::post('createRole', [AdminRoleController::class, 'store']);
+
+
+
+
 
 
 

@@ -266,7 +266,7 @@ class linkQldaController extends Controller
     {
         $user = User::find($iduser);
         // $pm = $u->getAllPermissions($u->permissions[0]);
-        //if ($user->can('create-tasks')) {
+        if ($user->can('edit-dinh-muc')) {
             $itemupdate = noteDinhmuc::find($iddm);
             if (!$itemupdate) {
                 return response()->json([
@@ -287,13 +287,13 @@ class linkQldaController extends Controller
                     'message' => 'Post can not be updated',
                 ], 500);
             }
-        // }
-        // else {
-        //     return response([
-        //         'success' => false,
-        //         'message' => 'Bạn không có quyền thực hiện tác vụ này'
-        //     ],200);
-        // }
+        }
+        else {
+            return response([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện tác vụ này'
+            ],200);
+        }
 
     }
 
