@@ -9,6 +9,10 @@ use App\Http\Requests\ruleRegister;
 use App\RemoteException;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
+
 class PassportAuthController extends Controller
 {
     /**
@@ -31,7 +35,7 @@ class PassportAuthController extends Controller
         //$validated = $request->validated();// cái này đung với class request mình tự tạo ra sử dụng validated
         //$errors = $validator->errors();
 
-        
+        //DB::beginTransaction();
         try {
             
             if (isset($request->validator) && $request->validator->fails()) {
@@ -51,7 +55,7 @@ class PassportAuthController extends Controller
                 'password' => bcrypt($request->password),
                
             ]);
-           
+            event(new Registered($user));// đăng ký sự kiện gưi email xác minh
             $token = $user->createToken('LaravelAuthApp')->accessToken;
 
             $arrSlug=[];
@@ -61,11 +65,13 @@ class PassportAuthController extends Controller
             }
 
             return response()->json(['token' => $token,
-                                    'user' => $user,
-                                    'slug' => $arrSlug                 
+                                     'user' => $user,
+                                     'slug' => $arrSlug                 
                                         ], 200);
-            // Validate the value...
+            //DB::commit();
+                                        // Validate the value...
         } catch (Exception $exception) {
+            //DB::rollBack();
              // Call report() method of App\Exceptions\Handler
             $this->reportException($exception);
             
@@ -125,4 +131,5 @@ class PassportAuthController extends Controller
                                  'slug' => $arrSlug 
                                 ], 200); 
     } 
+
 }

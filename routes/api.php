@@ -8,6 +8,8 @@ use App\Http\Controllers\linkQldaController;
 use App\Http\Controllers\giaVatTuController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminRoleController;
+use App\Http\Controllers\VerifyEmailController;
+use App\Http\Controllers\AdminConfigSystem;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,8 +26,14 @@ Route::post('register', [PassportAuthController::class, 'register']);
 Route::post('login', [PassportAuthController::class, 'login']);
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('details', [PassportAuthController::class, 'details']);
+    // route này sẽ gửi lại link xác minh
+    Route::post('/email/verification-notification', [VerifyEmailController::class, 'resendNotification'])
+    ->name('verification.send');
     });
-
+// route này sẽ hiện ra khi người dùng click vào link xác minh
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+    ->middleware(['signed'])->name('verification.verify');
+//api gửi báo cáo ngày tư vấn giam sát
 Route::middleware('auth:api')->group(function () {
     Route::resource('post/bcday', ReportDayController::class);
 });
@@ -72,6 +80,8 @@ Route::post('deleteRole/{id}', [AdminRoleController::class, 'delete']);
 // tao role
 Route::post('createRole', [AdminRoleController::class, 'store']);
 
+// thay doi file env
+Route::post('changeEnvironment', [AdminConfigSystem::class, 'changeEnvironment']);
 
 
 
@@ -80,5 +90,4 @@ Route::post('createRole', [AdminRoleController::class, 'store']);
 
 
 
-
-Route::get('test', [PassportAuthController::class, 'test']);
+Route::get('test/{id}/{id1}', [PassportAuthController::class, 'test']);

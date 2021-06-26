@@ -10,7 +10,7 @@ use Laravel\Passport\HasApiTokens;
 use App\Traits\HasPermissionsTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasPermissionsTrait;
     use HasFactory, Notifiable,SoftDeletes;
