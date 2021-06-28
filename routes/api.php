@@ -82,6 +82,10 @@ Route::post('createRole', [AdminRoleController::class, 'store']);
 
 // thay doi file env
 Route::post('changeEnvironment', [AdminConfigSystem::class, 'changeEnvironment']);
+// bảo trì hệ thống
+Route::post('offSystem', [AdminConfigSystem::class, 'offSystem']);
+// mở lại hệ thống
+Route::post('onSystem', [AdminConfigSystem::class, 'onSystem']);
 
 
 
