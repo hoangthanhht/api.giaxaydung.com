@@ -10,7 +10,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\AdminConfigSystem;
-
+use App\Http\Controllers\ResetPasswordController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -88,7 +88,10 @@ Route::post('offSystem', [AdminConfigSystem::class, 'offSystem']);
 Route::post('onSystem', [AdminConfigSystem::class, 'onSystem']);
 
 
-
+// gửi email reset pass
+Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail']);
+// đổi mật khẩu
+Route::post('changePass', [ResetPasswordController:: class,'reset']);
 
 
 
