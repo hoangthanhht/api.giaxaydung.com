@@ -40,7 +40,7 @@ class ResetPasswordRequest extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('http://localhost:8081/#/changepass/' . $this->token);
+        $url = url('http://thunghiem.gxd.vn//#/changepass/' . $this->token);
         //$url = "http://localhost:8081/#/changepass";
         return (new MailMessage)
             ->line('You are receiving this email because we received a password reset request for your account.')
