@@ -22,7 +22,6 @@ class Cors
             'Access-Control-Expose-Headers' => 'Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Credentials ',
             'GXD-Version' => '1.0'
         ];
-
         if ( $request->getMethod() === 'OPTIONS' ) {
             return response()
                     ->json(['status' => 'success'])
