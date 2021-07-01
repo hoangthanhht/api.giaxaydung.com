@@ -17,12 +17,14 @@ class ResetPasswordController extends Controller
 {
     public function sendMail(Request $request)
     {
+        echo("123");
         $user = User::where('email', $request->email)->firstOrFail();
         $passwordReset = PasswordReset::updateOrCreate([
             'email' => $user->email,
         ], [
             'token' => Str::random(60),
         ]);
+        echo("456");
         if ($passwordReset) {
             $user->notify(new ResetPasswordRequest($passwordReset->token));
         }
