@@ -91,7 +91,11 @@ class PassportAuthController extends Controller
             'password' => $request->password
         ];
         
-       
+        // if (Auth::check()) {
+        //    echo('123');
+        // }
+        // Auth::login($user,true);
+        // Auth::loginUsingId(1);
         if (auth()->attempt($data)) {
             //$user = Auth::user(); 
             

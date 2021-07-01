@@ -24,6 +24,7 @@ use App\Http\Controllers\ResetPasswordController;
 
 Route::post('register', [PassportAuthController::class, 'register']);
 Route::post('login', [PassportAuthController::class, 'login']);
+
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('details', [PassportAuthController::class, 'details']);
     // route này sẽ gửi lại link xác minh
