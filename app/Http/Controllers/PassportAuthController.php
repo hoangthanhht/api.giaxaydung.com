@@ -91,32 +91,37 @@ class PassportAuthController extends Controller
             'password' => $request->password
         ];
         
-        // if (Auth::check()) {
-        //    echo('123');
-        // }
-        // Auth::login($user,true);
-        // Auth::loginUsingId(1);
-        if (auth()->attempt($data)) {
-            //$user = Auth::user(); 
-            
-            $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
-            //$user = DB::table('users')->where('email', $request->email)->get();
-            $user = Auth::user();
-            $arrSlug=[];
-            //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
-            foreach ($user->roles()->get() as $item) {
-                array_push($arrSlug, $item->slug); 
-            }
-            return response()->json(['token' => $token,
-                                      'user' => $user,
-                                      'slug' => $arrSlug                 
-                                            ], 200);
-        } else {
-            return response()->json(['error' => 'Mật khẩu hoặc password không đúng',
-                                     'status'=> '401'
         
-        ], 401);
+        $user = User::where('email', $request->email)->first();
+        $isVerify = $user->email_verified_at;
+        if($isVerify!==''&& $isVerify!== null) {
 
+            if (auth()->attempt($data)) {
+                //$user = Auth::user(); 
+                
+                $token = auth()->user()->createToken('LaravelAuthApp')->accessToken;
+                //$user = DB::table('users')->where('email', $request->email)->get();
+                $user = Auth::user();
+                $arrSlug=[];
+                //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
+                foreach ($user->roles()->get() as $item) {
+                    array_push($arrSlug, $item->slug); 
+                }
+                return response()->json(['token' => $token,
+                                          'user' => $user,
+                                          'slug' => $arrSlug                 
+                                                ], 200);
+            } else 
+            {
+                return response()->json(['error' => 'Mật khẩu hoặc password không đúng',
+                                         'status'=> '401'
+            ], 401);
+    
+            }
+        } else {
+            return response()->json(['error' => 'Bạn chưa xác minh thông tin email',
+                                         'status'=> '401'
+                                        ], 401);
         }
     }   
 
