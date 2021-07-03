@@ -12,9 +12,10 @@ use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
-
+use App\Traits\StorageImageTrait;
 class PassportAuthController extends Controller
 {
+    use StorageImageTrait;
     /**
      * Registration
      */
@@ -140,5 +141,67 @@ class PassportAuthController extends Controller
                                  'slug' => $arrSlug 
                                 ], 200); 
     } 
+
+
+    public function upload(Request $request) {
+        $validator = Validator::make($request->all(),[ 
+            'objFile' => 'required|mimes:jpg,png,jpeg|max:4096',
+      ]);   
+
+      if($validator->fails()) {          
+           
+          return response()->json(['error'=>$validator->errors()], 401);                        
+       }  
+
+ 
+      if ($file = $request->file('objFile')) {
+
+            $dataUploadTrait = $this->storageTraitUpload($file);
+            // $fileNameOrigin= $file->getClientOriginalName();
+            // $fileNameHash= Str::random(20) . '.' . $file->getClientOriginalExtension();
+            // $filePath = $file->storeAs('public/'. 'avatar', $fileNameHash);
+            // $dataUploadTrait = [
+            //     'file_name'=>$fileNameOrigin,
+            //     'file_path'=>($filePath)
+            // ];
+
+            //$path = $file->store('public/files');
+            //$name = $file->getClientOriginalName();
+            $user = Auth::user(); 
+            $uploadAvartar = $user->update(['path_avatar'=>($dataUploadTrait['file_path'])]);
+            $user->update(['name'=>$request->name]);
+            //store your file into directory and db
+        //   $save = new file();
+        //   $save->name = $file;
+        //   $save->store_path= $path;
+        //   $save->save();
+            $user = Auth::user(); 
+            $arrSlug=[];
+            //$user->roles()->get() : cái này sẽ lấy ra tất cả các bản ghi trong bảng role mà user có id  bằng id trong bảng role_id
+            foreach ($user->roles()->get() as $item) {
+                array_push($arrSlug, $item->slug); 
+            }
+             if($uploadAvartar) {
+                return response()->json([ "success" => $uploadAvartar,
+                "message" => "Upload file thành công",
+                'user' => $user,
+                'slug' => $arrSlug,
+               ], 200); 
+
+             } else {
+                return response()->json([ "success" => $uploadAvartar,
+                "message" => "Upload file không thành công",
+                'user' => $user,
+                'slug' => $arrSlug,
+               ], 200); 
+             }
+ 
+      }
+    }
+    public function getPathFile($id) {
+        $user = User::where('id',$id)->get();
+        $urlAvartar = url($user[0]->path_avatar);
+        return $urlAvartar;
+    }
 
 }

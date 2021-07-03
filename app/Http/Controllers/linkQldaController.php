@@ -255,6 +255,7 @@ class linkQldaController extends Controller
 
     public function getDataTableDM()
     {
+        echo phpinfo();
         $dinhMuc = noteDinhmuc::paginate(20); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
 

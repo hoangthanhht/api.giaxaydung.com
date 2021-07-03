@@ -16,7 +16,7 @@ abstract class AbstractException extends Exception
     public function __construct($message = null, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
         $this->code = $code;
-        $this->message = $message ?: 'Server Exception'
+        $this->message = $message ?: 'Server Exception';
 
         parent::__construct($message, $code);
     }

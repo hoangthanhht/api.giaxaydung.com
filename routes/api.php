@@ -26,6 +26,8 @@ Route::post('register', [PassportAuthController::class, 'register']);
 Route::post('login', [PassportAuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:api'], function(){
+    // upload và lưu vao database
+    Route::post('upload', [PassportAuthController::class, 'upload']);
     Route::get('details', [PassportAuthController::class, 'details']);
     // route này sẽ gửi lại link xác minh
     Route::post('/email/verification-notification', [VerifyEmailController::class, 'resendNotification'])
@@ -93,7 +95,8 @@ Route::post('onSystem', [AdminConfigSystem::class, 'onSystem']);
 Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail']);
 // đổi mật khẩu
 Route::post('changePass', [ResetPasswordController:: class,'reset']);
-
+// lấy đường dãn file
+Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
 
