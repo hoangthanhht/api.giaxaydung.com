@@ -61,6 +61,7 @@ class giaVatTuController extends Controller
                     //       echo($get->isEmpty());
     
                     //    }
+                    $ck = $get->isEmpty();
                     if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
     
                         array_push($arrTemp, [
@@ -175,11 +176,11 @@ class giaVatTuController extends Controller
                     // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
                     $arrTemp = [];
                     $arrUpdate = [];
+                    DB::commit();
                     return response()->json([
                         'code' => 200,
                         'message' => 'Lưu xong giá vật tư',
                     ]);
-                    DB::commit();
                 }
             } catch (Exception $exception) {
                 DB::rollBack();
