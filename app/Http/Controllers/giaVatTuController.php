@@ -73,6 +73,7 @@ class giaVatTuController extends Controller
                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                             'tacGia' => $user ? $user->name : null,
+                            'user_id' => $user ? $user->id : null,
                         ]);
                     } else { // truong họp trùng
                         if ($agreeOverride) { // đồng ý ghi đè
@@ -99,6 +100,7 @@ class giaVatTuController extends Controller
                                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                             'tacGia' => $user ? $user->name : null,
+                                            'user_id' => $user ? $user->id : null,
                                         ]);
                                     // array_push($arrUpdate, [ 
                                     //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
@@ -142,6 +144,7 @@ class giaVatTuController extends Controller
                                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                             'tacGia' => $user ? $user->name : null,
+                                            'user_id' => $user ? $user->id : null,
                                         ]);
                             //         array_push($arrUpdate, [ 
                             //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,

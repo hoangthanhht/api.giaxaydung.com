@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\giaVatTu;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Validator; 
 use App\Http\Requests\ruleRegister;
@@ -169,7 +170,10 @@ class PassportAuthController extends Controller
             //$name = $file->getClientOriginalName();
             $user = Auth::user(); 
             $uploadAvartar = $user->update(['path_avatar'=>($dataUploadTrait['file_path'])]);
-            $user->update(['name'=>$request->name]);
+            if($request->name) {
+
+                $user->update(['name'=>$request->name]);
+            }
             //store your file into directory and db
         //   $save = new file();
         //   $save->name = $file;
@@ -181,6 +185,12 @@ class PassportAuthController extends Controller
             foreach ($user->roles()->get() as $item) {
                 array_push($arrSlug, $item->slug); 
             }
+            // update lại tên bên bảng giá vật tư khi người dùng thay đổi tên
+            DB::table('gia_vat_tus')
+            ->where('user_id', $user->id)
+            ->update([
+                'tacGia' => $user ? $user->name : null,   
+            ]);
              if($uploadAvartar) {
                 return response()->json([ "success" => $uploadAvartar,
                 "message" => "Upload file thành công",
