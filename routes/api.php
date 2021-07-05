@@ -26,6 +26,9 @@ Route::post('register', [PassportAuthController::class, 'register']);
 Route::post('login', [PassportAuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:api'], function(){
+    
+    // đổi mật khẩu cho nguoi dung khi da dang nhap
+    Route::post('changePassAfterLogin', [ResetPasswordController:: class,'changePass']);
     // upload và lưu vao database
     Route::post('upload', [PassportAuthController::class, 'upload']);
     Route::get('details', [PassportAuthController::class, 'details']);
@@ -97,7 +100,6 @@ Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail
 Route::post('changePass', [ResetPasswordController:: class,'reset']);
 // lấy đường dãn file
 Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
-
 
 
 

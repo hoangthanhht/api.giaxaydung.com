@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\PasswordReset;
 //use Illuminate\Auth\Events\PasswordReset;
 use App\Notifications\ResetPasswordRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -84,5 +85,29 @@ class ResetPasswordController extends Controller
         // return response([
         //     'message'=> __($status)
         // ], 500);
+    }
+
+    public function changePass(Request $request)
+    {
+        $user = Auth::user(); 
+        // $a = $request->current_password;
+        // $a1 = $request->verify_password;
+        // $a2 = $request->new_password;
+        // $a3 = $user->password;
+
+        if(password_verify($request->current_password, $user->password)) {
+            $updatePasswordUser = $user->update(['password'=>bcrypt($request->new_password)]);
+            //$passwordReset->delete();
+            return response()->json([
+                'success' => $updatePasswordUser,
+                'message' => 'Thay đổi mật khẩu thành công'
+            ]);
+        }else {
+            return response()->json([
+                'success' => false,
+                'error' => 'Mật khẩu cũ không đúng'
+            ]);
+        }
+ 
     }
 }
