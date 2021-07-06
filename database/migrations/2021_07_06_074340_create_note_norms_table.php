@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNoteDinhmucsTable extends Migration
+class CreateNoteNormsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateNoteDinhmucsTable extends Migration
      */
     public function up()
     {
-        Schema::create('note_dinhmucs', function (Blueprint $table) {
+        Schema::create('note_norms', function (Blueprint $table) {
             $table->id();
             $table->text('maDinhMuc'); // cột description có kiểu là text và có thể để NULL
             $table->text('tenMaDinhMuc'); // cột price có kiểu là integer
@@ -29,6 +29,6 @@ class CreateNoteDinhmucsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('note_dinhmucs');
+        Schema::dropIfExists('note_norms');
     }
 }

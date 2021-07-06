@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\giaVatTu;
+use App\Models\material_cost;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Validator; 
 use App\Http\Requests\ruleRegister;
@@ -186,7 +186,7 @@ class PassportAuthController extends Controller
                 array_push($arrSlug, $item->slug); 
             }
             // update lại tên bên bảng giá vật tư khi người dùng thay đổi tên
-            DB::table('gia_vat_tus')
+            DB::table('material_costs')
             ->where('user_id', $user->id)
             ->update([
                 'tacGia' => $user ? $user->name : null,   

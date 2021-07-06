@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\giaVatTu;
+use App\Models\material_cost;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -46,7 +46,7 @@ class giaVatTuController extends Controller
             try {
                 foreach ($arrData as $item) {
                     //giaVatTu::create([
-                    $get = DB::table('gia_vat_tus')
+                    $get = DB::table('material_costs')
                         ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
                         ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
                         ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
@@ -61,7 +61,6 @@ class giaVatTuController extends Controller
                     //       echo($get->isEmpty());
     
                     //    }
-                    $ck = $get->isEmpty();
                     if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
     
                         array_push($arrTemp, [
@@ -89,7 +88,7 @@ class giaVatTuController extends Controller
                                 } else { // bổ xung mới giá
     
                                     $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
-                                    DB::table('gia_vat_tus')
+                                    DB::table('material_costs')
                                         ->where('id', $getItem->id)
                                         ->update([
                                             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
@@ -133,7 +132,7 @@ class giaVatTuController extends Controller
                                     }
                                     array_push($arrgiaDaCo, $giaImport);
                                     $giaDaCoUpdate = implode(';',$arrgiaDaCo);
-                                    DB::table('gia_vat_tus')
+                                    DB::table('material_costs')
                                         ->where('id', $getItem->id)
                                         ->update([
                                             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
@@ -175,7 +174,7 @@ class giaVatTuController extends Controller
                     //  $controlUpdate = new giaVatTuController();
                     //  $controlUpdate->sortTasks($arrUpdate);
                     // //giaVatTu::updated($arrUpdate);
-                    giaVatTu::insert($arrTemp); // phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
+                    material_cost::insert($arrTemp); // phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
                     // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
                     $arrTemp = [];
                     $arrUpdate = [];
@@ -207,7 +206,7 @@ class giaVatTuController extends Controller
         $user = User::find($idUser);
         // $pm = $u->getAllPermissions($u->permissions[0]);
         if ($user->can('edit-gia-vat-tu')) {
-            $itemupdate = giaVatTu::find($idBg);
+            $itemupdate = material_cost::find($idBg);
             if (!$itemupdate) {
                 return response()->json([
                     'success' => false,
@@ -240,7 +239,7 @@ class giaVatTuController extends Controller
 
     public function getAllDataTableGiaVT()
     {
-        $giaVt = giaVatTu::all(); // hàm all sẽ lất ra tất cả sản phẩm
+        $giaVt = material_cost::all(); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
         
         return response()->json([
@@ -254,7 +253,7 @@ class giaVatTuController extends Controller
     {
         //$giaVt = giaVatTu::all(); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
-        $giaVt = giaVatTu::paginate(20);
+        $giaVt = material_cost::paginate(20);
         return response()->json(
             // 'success' => true,
             // 'data' => $giaVt,

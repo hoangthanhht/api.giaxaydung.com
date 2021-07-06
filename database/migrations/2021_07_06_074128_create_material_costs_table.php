@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGiaVatTusTable extends Migration
+class CreateMaterialCostsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateGiaVatTusTable extends Migration
      */
     public function up()
     {
-        Schema::create('gia_vat_tus', function (Blueprint $table) {
+        Schema::create('material_costs', function (Blueprint $table) {
             $table->id();// cái này tương đương với biginterger trong larave.
             $table->longText('maVatTu')->nullable(); 
             $table->longText('tenVatTu')->nullable(); 
@@ -23,6 +23,7 @@ class CreateGiaVatTusTable extends Migration
             $table->longText('nguon')->nullable(); 
             $table->longText('tinh')->nullable(); 
             $table->longText('tacGia')->nullable(); 
+            $table->integer('user_id')->nullable(); 
             $table->timestamps();
         });
     }
@@ -34,6 +35,6 @@ class CreateGiaVatTusTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('gia_vat_tus');
+        Schema::dropIfExists('material_costs');
     }
 }

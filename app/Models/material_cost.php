@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class noteDinhmuc extends Model
+class material_cost extends Model
 {
     use HasFactory;
-    protected $fillable = ['maDinhMuc','tenMaDinhMuc','ghiChuDinhMuc'];
-
+    protected $fillable = ['maVatTu','tenVatTu','giaVatTu','donVi','nguon','ghiChu','tinh','tacGia','user_id'];
 }

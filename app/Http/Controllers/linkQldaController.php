@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\linkQlda;
-use App\Models\noteDinhmuc;
+use App\Models\note_norms;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -108,7 +108,7 @@ class linkQldaController extends Controller
         array_push($strArr, $substr3);
         $rsNote = '';
         foreach ($strArr as $item) {
-            $recordMaDM = DB::table('note_dinhmucs')->where('maDinhMuc', $item)->get();
+            $recordMaDM = DB::table('note_norms')->where('maDinhMuc', $item)->get();
             if (count($recordMaDM) > 0) {
                 break;
             }
@@ -203,10 +203,10 @@ class linkQldaController extends Controller
         $json = json_decode($link, true);
         $dmTableArr = []; //mảng chứa các bản ghi sẽ đc ghi vào db để tránh trường hợp số lượng bản ghi lớn gặp lỗi
         $dmSavedArr = []; //mảng chứa các mã định mức đã có ghi chú trong bảng
-        $dmSaved = DB::table('note_dinhmucs')
+        $dmSaved = DB::table('note_norms')
             ->whereNotNull('ghiChuDinhMuc')
             ->get();
-        DB::table('note_dinhmucs')
+        DB::table('note_norms')
             ->whereNull('ghiChuDinhMuc')
             ->delete();
         foreach ($dmSaved as $item) {
@@ -237,13 +237,13 @@ class linkQldaController extends Controller
             }
 
         }
-        noteDinhmuc::insert($dmTableArr);
+        note_norms::insert($dmTableArr);
         $dmTableArr = [];
     }
     
     public function getAllDataTableDm()
     {
-        $dinhMuc = noteDinhmuc::all(); // hàm all sẽ lất ra tất cả sản phẩm
+        $dinhMuc = note_norms::all(); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
 
         return response()->json([
@@ -255,7 +255,7 @@ class linkQldaController extends Controller
 
     public function getDataTableDM()
     {
-        $dinhMuc = noteDinhmuc::paginate(20); // hàm all sẽ lất ra tất cả sản phẩm
+        $dinhMuc = note_norms::paginate(20); // hàm all sẽ lất ra tất cả sản phẩm
         // $posts = auth()->user()->posts;
 
         return response()->json($dinhMuc);
@@ -267,7 +267,7 @@ class linkQldaController extends Controller
         $user = User::find($iduser);
         // $pm = $u->getAllPermissions($u->permissions[0]);
         if ($user->can('edit-dinh-muc')) {
-            $itemupdate = noteDinhmuc::find($iddm);
+            $itemupdate = note_norms::find($iddm);
             if (!$itemupdate) {
                 return response()->json([
                     'success' => false,
