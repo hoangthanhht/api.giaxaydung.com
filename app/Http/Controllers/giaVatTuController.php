@@ -297,6 +297,7 @@ class giaVatTuController extends Controller
                     'Đơn vị'=> $itemPrice->donVi,
                     'Nguồn'=> $itemPrice->nguon,
                     'Giá vật tư'=> $giaVt,
+                    'Ghi chú' =>$itemPrice->ghiChu
                 ];
                 array_push($arrResult, $arrTemp); 
             }
@@ -321,6 +322,7 @@ class giaVatTuController extends Controller
                     'Đơn vị'=> $itemPrice->donVi,
                     'Nguồn'=> $itemPrice->nguon,
                     'Giá vật tư'=> $giaVt,
+                    'Ghi chú' =>$itemPrice->ghiChu
                 ];
                 array_push($arrResult, $arrTemp); 
             }
