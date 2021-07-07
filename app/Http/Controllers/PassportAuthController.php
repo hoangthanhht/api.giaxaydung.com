@@ -14,9 +14,10 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use App\Traits\StorageImageTrait;
+use App\Traits\HelperTrait;
 class PassportAuthController extends Controller
 {
-    use StorageImageTrait;
+    use StorageImageTrait,HelperTrait;
     /**
      * Registration
      */
@@ -214,4 +215,37 @@ class PassportAuthController extends Controller
         return $urlAvartar;
     }
 
+
+   
+
+    public function test($stringVT,$keyWord) {
+    //      $stringArr = '';
+    //      $getProvince = DB::table('material_costs')->select('tinh')->distinct()->get();
+    //     foreach ($getProvince as $item) {
+    //     $getPrice = DB::table('material_costs')->where('tinh', $item->tinh)->select('giaVatTu')->distinct()->get();
+    //     foreach ($getPrice as $itemPrice) {
+    //         $pos = strpos($itemPrice->giaVatTu, ':'); // tách giá đến vị trí :
+    //         $str1 = substr($itemPrice->giaVatTu, 0, $pos); 
+    //         $str1 = str_replace(',','_', $str1);
+    //         $getNameProvince = DB::table('province_cities')->where('symbol_province', $item->tinh)->first();
+    //         if($stringArr === '') {
+
+    //             $stringArr = $getNameProvince->name_province . '_' .$getNameProvince->symbol_province . '_' . $str1 .';';
+    //         }
+    //         $stringArr = $stringArr . $getNameProvince->name_province . '_' .$getNameProvince->symbol_province . '_' . $str1 .';';
+    //     }
+    // }
+    //     $stringArr = substr($stringArr, 0, strlen($stringArr) - 1);
+    //     $arrPriceProvince = explode(";", $stringArr);
+
+
+
+    // $pos = strpos(strtolower($this->convert_vi_to_en('Gạch bê tông đặc: KM 100A 210x100x60mm')), strtolower('gach'));
+    //     if($pos!==false){
+    //         echo('va day');
+    //     }
+    //  return response()->json($pos, 200);
+
+
+    }
 }

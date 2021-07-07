@@ -65,6 +65,12 @@ Route::post('updateDataGiaVatTu/{id}/{iduser}', [giaVatTuController::class, 'upd
 Route::get('getDataTableBaoGia', [giaVatTuController::class, 'getDataTableGiaVT']);
 // lấy tat ca dữ liệu giá về từ data base
 Route::get('getAllDataTableGiaVT', [giaVatTuController::class, 'getAllDataTableGiaVT']);
+// lấy danh sách các tỉnh hiện đang có trong data base
+Route::get('getListBaoGia', [giaVatTuController::class, 'getListBaoGiaProvince']);
+// trả về cho phần mềm báo giá theo mã
+Route::get('getPriceWithCodeMaterial/{codeMaterial}/{stringVT}', [giaVatTuController::class, 'getPriceWithCodeMaterial']);
+// trả về cho phần mềm báo giá theo từ khóa
+Route::get('getPriceWithKeyWord/{stringVT}/{keyWord}', [giaVatTuController::class, 'getPriceWithKeyWord']);
 
 // lấy dữ liệu user và role về từ data base
 Route::get('getDataTableUser', [AdminUserController::class, 'index']);
@@ -103,4 +109,4 @@ Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
 
-Route::get('test/{id}/{id1}', [PassportAuthController::class, 'test']);
+Route::get('test/{str}/{kw}', [PassportAuthController::class, 'test']);
