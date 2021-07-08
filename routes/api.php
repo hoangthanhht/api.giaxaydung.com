@@ -109,4 +109,4 @@ Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
 
-Route::get('test/{str}/{kw}', [PassportAuthController::class, 'test']);
+Route::get('test', [PassportAuthController::class, 'test']);

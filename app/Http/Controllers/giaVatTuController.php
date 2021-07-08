@@ -275,9 +275,9 @@ class giaVatTuController extends Controller
         $stringArr = '';
         $getProvince = DB::table('material_costs')->select('tinh')->distinct()->get();
         foreach ($getProvince as $item) {
-            $getPrice = DB::table('material_costs')->where('tinh', $item->tinh)->select('giaVatTu')->distinct()->get();
-            foreach ($getPrice as $itemPrice) {
-                $arrgiaProvince = explode(';', $itemPrice->giaVatTu);
+            $getPrice = DB::table('material_costs')->where('tinh', $item->tinh)->first();//select('giaVatTu')->distinct()->get();
+            //foreach ($getPrice as $itemPrice) {
+                $arrgiaProvince = explode(';', $getPrice->giaVatTu);
                 foreach ($arrgiaProvince as $itemArr) {
                     $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
                     $str1 = substr($itemArr, 0, $pos);
@@ -291,7 +291,7 @@ class giaVatTuController extends Controller
                         $stringArr = $stringArr . $getNameProvince->name_province . '_' . $getNameProvince->symbol_province . '_' . $str1 . ';';
                     }
                 }
-            }
+            //}
         }
         $stringArr = substr($stringArr, 0, strlen($stringArr) - 1);
         $arrPriceProvince = explode(";", $stringArr);

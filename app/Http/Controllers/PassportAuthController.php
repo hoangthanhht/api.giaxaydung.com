@@ -218,7 +218,7 @@ class PassportAuthController extends Controller
 
    
 
-    public function test($stringVT,$keyWord) {
+    public function test() {
     //      $stringArr = '';
     //      $getProvince = DB::table('material_costs')->select('tinh')->distinct()->get();
     //     foreach ($getProvince as $item) {
@@ -244,7 +244,11 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    //  return response()->json($pos, 200);
+    $getProvince = DB::table('material_costs')->where('tinh', 'AG')->first();
+    foreach ($getProvince as $item) {
+       // echo ($item['giaVatTu']);
+    }
+     return $getProvince->giaVatTu;
 
 
     }
