@@ -35,6 +35,7 @@ class giaVatTuController extends Controller
 
     public function store(Request $request, $idUserImport, $agreeOverride)
     {
+        $material_cost = new material_cost();
         $user = User::find($idUserImport);
         if ($user->can('create-gia-vat-tu')) {
             $user = User::find($idUserImport);
@@ -74,8 +75,8 @@ class giaVatTuController extends Controller
                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                             'tacGia' => $user ? $user->name : null,
                             'user_id' => $user ? $user->id : null,
-                            'created_at' => now(),
-                            'updated_at' => now()
+                            'created_at' =>$material_cost->freshTimestamp(),
+                            'updated_at' => $material_cost->freshTimestamp(),
                         ]);
                     } else { // truong họp khong trung
 
