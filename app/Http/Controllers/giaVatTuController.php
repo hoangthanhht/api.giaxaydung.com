@@ -74,6 +74,8 @@ class giaVatTuController extends Controller
                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                             'tacGia' => $user ? $user->name : null,
                             'user_id' => $user ? $user->id : null,
+                            'created_at' => now(),
+                            'updated_at' => now()
                         ]);
                     } else { // truong họp khong trung
 
