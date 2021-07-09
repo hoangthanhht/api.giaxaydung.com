@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateMaterialCostsTable extends Migration
@@ -24,7 +25,9 @@ class CreateMaterialCostsTable extends Migration
             $table->longText('tinh')->nullable(); 
             $table->longText('tacGia')->nullable(); 
             $table->integer('user_id')->nullable(); 
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            //$table->timestamps();
         });
     }
 
