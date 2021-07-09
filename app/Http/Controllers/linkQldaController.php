@@ -195,6 +195,7 @@ class linkQldaController extends Controller
 
     public function storeTableDM()
     {
+        $note_norm = new note_norms();
         $obj = new linkQldaController();
         $links = linkQlda::first();
 
@@ -231,6 +232,8 @@ class linkQldaController extends Controller
                     array_push($dmTableArr, [
                         'maDinhMuc' => $result[0],
                         'tenMaDinhMuc' => $result[1],
+                        'created_at' =>$note_norm->freshTimestamp(),
+                        'updated_at' => $note_norm->freshTimestamp()
                     ]);
 
                 }

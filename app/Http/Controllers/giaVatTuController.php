@@ -76,7 +76,7 @@ class giaVatTuController extends Controller
                             'tacGia' => $user ? $user->name : null,
                             'user_id' => $user ? $user->id : null,
                             'created_at' =>$material_cost->freshTimestamp(),
-                            'updated_at' => $material_cost->freshTimestamp(),
+                            'updated_at' => $material_cost->freshTimestamp()
                         ]);
                     } else { // truong họp khong trung
 
@@ -104,6 +104,7 @@ class giaVatTuController extends Controller
                                         'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                         'tacGia' => $user ? $user->name : null,
                                         'user_id' => $user ? $user->id : null,
+                                        'updated_at' => $material_cost->freshTimestamp()
                                     ]);
                                 // array_push($arrUpdate, [
                                 //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
@@ -172,6 +173,7 @@ class giaVatTuController extends Controller
                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                             'tacGia' => $user ? $user->name : null,
                                             'user_id' => $user ? $user->id : null,
+                                            'updated_at' => $material_cost->freshTimestamp()
                                         ]);
 
                                 }

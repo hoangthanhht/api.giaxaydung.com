@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class note_norms extends Model
 {
     use HasFactory;
-    protected $fillable = ['maDinhMuc','tenMaDinhMuc','ghiChuDinhMuc'];
+    protected $fillable = ['maDinhMuc','tenMaDinhMuc','ghiChuDinhMuc','created_at','updated_at'];
 
 }
