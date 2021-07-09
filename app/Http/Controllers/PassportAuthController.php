@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use App\Traits\StorageImageTrait;
 use App\Traits\HelperTrait;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+
 class PassportAuthController extends Controller
 {
     use StorageImageTrait,HelperTrait;
@@ -169,7 +172,19 @@ class PassportAuthController extends Controller
 
             //$path = $file->store('public/files');
             //$name = $file->getClientOriginalName();
-            $user = Auth::user(); 
+            $user = Auth::user();
+            $avaUser = ($user->path_avatar);
+            $avaUser = substr($avaUser, 1, strlen($avaUser) - 1);
+            if(File::exists($avaUser)){
+                File::delete($avaUser);
+                //unlink('storage/avatar/CJviXUlILmYuTOv8rQYs.jpg'); // có thể dùng cái này để xóa file
+                /*
+                    Delete Multiple File like this way
+                    Storage::delete(['upload/test.png', 'upload/test2.png']);
+                */
+            }else{
+               
+            }
             $uploadAvartar = $user->update(['path_avatar'=>($dataUploadTrait['file_path'])]);
             if($request->name) {
 
@@ -244,12 +259,19 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    $getProvince = DB::table('material_costs')->where('tinh', 'AG')->first();
-    foreach ($getProvince as $item) {
-       // echo ($item['giaVatTu']);
+   
+    if(File::exists("storage/avatar/4v11M3DoNNg7ZCESzI8X.jpg")){
+        File::delete("storage/avatar/4v11M3DoNNg7ZCESzI8X.jpg");
+        /*
+            Delete Multiple File like this way
+            Storage::delete(['upload/test.png', 'upload/test2.png']);
+        */
+    }else{
+       
+        //unlink('storage/avatar/CJviXUlILmYuTOv8rQYs.jpg');
     }
-     return $getProvince->giaVatTu;
-
-
+    //Storage::disk('public')->delete('storage/avatar/7xAO9IBcv8qhe8TF02c8.jpg');
+    //$file_path = app_path("public\avatar\abDKsD5EHooSeHQHM8Ta.jpg"); // app_path("public/test.txt");
+   
     }
 }

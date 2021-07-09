@@ -44,7 +44,8 @@ class Kernel extends HttpKernel
 
         'api' => [
             //'throttle:api',
-            'throttle:60,1',// khắc phục lỗi 429 serve
+            //'throttle:60,1',// khắc phục lỗi 429 serve
+            'throttle:120,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Fruitcake\Cors\HandleCors::class,
         ],
