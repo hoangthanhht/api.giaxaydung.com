@@ -42,88 +42,92 @@ class giaVatTuController extends Controller
             $arrTemp = [];
             $arrUpdate = [];
             $arrData = json_decode($request->jsonData);
+            //$arrData = json_decode($request->,true);// dungf cachs nay thi $arrData se la mang con neu khong co true thi se la object
             $exitsPrice = false;
             DB::beginTransaction(); // đảm bảo tính toàn vẹn dữ liệu
             try {
                 foreach ($arrData as $item) {
+                    $count = count(get_object_vars($item));// dung ham nay de dem so luong cua 1 stdclass object sau khi decode
                     //giaVatTu::create([
+                   if($count >=7) {
                     $get = DB::table('material_costs')
-                        ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
-                        ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
-                        ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
+                    ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
+                    ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
+                    ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
                     //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
-                        ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
-                        ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
-                        ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
-                        ->get();
-                    // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
-                    //    if($get->isEmpty()) {
-                    //       echo('empty($get)');
-                    //       echo(gettype($get));
-                    //       echo($get->isEmpty());
+                    ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
+                    ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
+                    ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
+                    ->get();
+                // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
+                //    if($get->isEmpty()) {
+                //       echo('empty($get)');
+                //       echo(gettype($get));
+                //       echo($get->isEmpty());
 
-                    //    }
-                    if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
+                //    }
+                if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
 
-                        array_push($arrTemp, [
-                            'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-                            'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-                            'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-                            'giaVatTu' => $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null,
-                            'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-                            'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-                            'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-                            'tacGia' => $user ? $user->name : null,
-                            'user_id' => $user ? $user->id : null,
-                            'created_at' =>$material_cost->freshTimestamp(),
-                            'updated_at' => $material_cost->freshTimestamp()
-                        ]);
-                    } else { // truong họp khong trung
+                    array_push($arrTemp, [
+                        'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
+                        'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
+                        'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
+                        'giaVatTu' => $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null,
+                        'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                        'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
+                        'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                        'tacGia' => $user ? $user->name : null,
+                        'user_id' => $user ? $user->id : null,
+                        'created_at' =>$material_cost->freshTimestamp(),
+                        'updated_at' => $material_cost->freshTimestamp()
+                    ]);
+                } else { // truong họp khong trung
 
-                        foreach ($get as $getItem) {
-                            $giaDaCo = $getItem->giaVatTu;
-                            $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
-                            $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
-                            $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
+                    foreach ($get as $getItem) {
+                        $giaDaCo = $getItem->giaVatTu;
+                        $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
+                        $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
+                        $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
 
-                            if ($pos1 !== false) { //tim thay gia im port trong gia da co
-                                $exitsPrice = true;
-                                break;
-                            } else { // bổ xung mới giá
+                        if ($pos1 !== false) { //tim thay gia im port trong gia da co
+                            $exitsPrice = true;
+                            break;
+                        } else { // bổ xung mới giá
 
-                                $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
-                                DB::table('material_costs')
-                                    ->where('id', $getItem->id)
-                                    ->update([
-                                        'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-                                        'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-                                        'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-                                        'giaVatTu' => $giaAfterUpdate,
-                                        'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-                                        'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-                                        'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-                                        'tacGia' => $user ? $user->name : null,
-                                        'user_id' => $user ? $user->id : null,
-                                        'updated_at' => $material_cost->freshTimestamp()
-                                    ]);
-                                // array_push($arrUpdate, [
-                                //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-                                //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-                                //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-                                //             'giaVatTu' => $giaAfterUpdate,
-                                //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-                                //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-                                //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-                                //             'tacGia' => $user ? $user->name : null,
-                                //             'id' => $getItem->id
-                                // ]);
-                            }
-
+                            $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
+                            DB::table('material_costs')
+                                ->where('id', $getItem->id)
+                                ->update([
+                                    'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
+                                    'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
+                                    'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
+                                    'giaVatTu' => $giaAfterUpdate,
+                                    'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                    'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
+                                    'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                    'tacGia' => $user ? $user->name : null,
+                                    'user_id' => $user ? $user->id : null,
+                                    'updated_at' => $material_cost->freshTimestamp()
+                                ]);
+                            // array_push($arrUpdate, [
+                            //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
+                            //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
+                            //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
+                            //             'giaVatTu' => $giaAfterUpdate,
+                            //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                            //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
+                            //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                            //             'tacGia' => $user ? $user->name : null,
+                            //             'id' => $getItem->id
+                            // ]);
                         }
+
                     }
-                    if ($exitsPrice === true) {
-                        break;
-                    }
+                }
+                if ($exitsPrice === true) {
+                    break;
+                }
+                   }
                 }
                 if ($exitsPrice === true) {
                     if ($agreeOverride === "0") {
