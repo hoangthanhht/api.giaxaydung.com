@@ -260,18 +260,8 @@ class PassportAuthController extends Controller
     //         echo('va day');
     //     }
    
-    if(File::exists("storage/avatar/4v11M3DoNNg7ZCESzI8X.jpg")){
-        File::delete("storage/avatar/4v11M3DoNNg7ZCESzI8X.jpg");
-        /*
-            Delete Multiple File like this way
-            Storage::delete(['upload/test.png', 'upload/test2.png']);
-        */
-    }else{
-       
-        //unlink('storage/avatar/CJviXUlILmYuTOv8rQYs.jpg');
-    }
-    //Storage::disk('public')->delete('storage/avatar/7xAO9IBcv8qhe8TF02c8.jpg');
-    //$file_path = app_path("public\avatar\abDKsD5EHooSeHQHM8Ta.jpg"); // app_path("public/test.txt");
+    $getPrice = DB::table('material_costs')->where('tinh', 'HN')->select('giaVatTu')->distinct()->get();
+    return $getPrice;
    
     }
 }
