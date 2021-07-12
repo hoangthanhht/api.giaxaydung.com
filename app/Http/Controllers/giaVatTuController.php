@@ -372,7 +372,7 @@ class giaVatTuController extends Controller
         foreach ($getProvince as $item) {
             $getPrice = DB::table('material_costs')->where('tinh', $item->tinh)->select('giaVatTu')->distinct()->get();
             foreach ($getPrice as $itemPrice) {
-            $arrgiaProvince = explode(';', $getPrice->giaVatTu);
+            $arrgiaProvince = explode(';', $itemPrice->giaVatTu);
             foreach ($arrgiaProvince as $itemArr) {
                 $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
                 $str1 = substr($itemArr, 0, $pos);
