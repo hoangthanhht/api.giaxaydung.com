@@ -259,9 +259,8 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-   
-    $getPrice = DB::table('material_costs')->where('tinh', 'HN')->select('giaVatTu')->distinct()->get();
-    return $getPrice;
-   
+   $arr = ['a'=>'a','b'=>'b','a'=>'a','c'=>'c','a'=>'a'];
+    $arr = array_unique($arr, SORT_REGULAR);
+   return $arr;
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\AdminConfigSystem;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\material_cost_for_guestController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,6 +61,21 @@ Route::post('updateDataDm/{id}/{iduser}', [linkQldaController::class, 'updateDat
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 // đưa dữ liệu từ bảng excel vào data base
 Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
+/* PHẦN UP GIÁ CỦA NGƯỜI DÙNG VÀ APPROVE CỦA QUẢN TRỊ */
+// đưa dữ liệu từ bảng excel vào data base do người dùng up
+Route::post('guestCreateGiaVT/{idUser}/{agreeOverride}', [material_cost_for_guestController::class, 'store']);
+// đưa dữ liệu từ bảng excel vào data base do người dùng up
+Route::get('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUserUpBaoGia']);
+// đưa dữ liệu từ bảng excel vào data base do người dùng up
+Route::get('getInfoBaoGiaOfUser/{id}', [material_cost_for_guestController::class, 'getInfoBaoGiaOfUser']);
+// đưa dữ liệu từ bảng excel vào data base do người dùng up
+Route::post('viewBaoGiaWithSelecttion', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
+// đưa dữ liệu từ bảng excel vào data base do người dùng up
+Route::get('getDataTableGiaVTGuest', [material_cost_for_guestController::class, 'getDataTableGiaVTGuest']);
+
+
+
+
 //api đẻ chỉnh sửa gia vật tư
 Route::post('updateDataGiaVatTu/{id}/{iduser}', [giaVatTuController::class, 'updateDataGiaVatTu']);
 // lấy dữ liệu giá co phan trang về từ data base

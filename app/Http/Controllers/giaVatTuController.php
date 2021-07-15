@@ -51,7 +51,7 @@ class giaVatTuController extends Controller
                 foreach ($arrData as $item) {
                     $count = count(get_object_vars($item)); // dung ham nay de dem so luong cua 1 stdclass object sau khi decode
                     //giaVatTu::create([
-                    if ($count >= 7) {// điều kiện bắt trường hợp bảng giá thiếu 1 trong các cột giá , mã hay nguồn thì sẽ lỗi. đây là trường hợp dòng chỉ có 2 - 3 ô
+                    if ($count >= 8) {// điều kiện bắt trường hợp bảng giá thiếu 1 trong các cột giá , mã hay nguồn thì sẽ lỗi. đây là trường hợp dòng chỉ có 2 - 3 ô
                        
                         $get = DB::table('material_costs')
                             ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
@@ -61,6 +61,7 @@ class giaVatTuController extends Controller
                             ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
                             ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
                             ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
+                            ->where('user_id', $user ? $user->id : null)
                             ->get();
                         // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
                         //    if($get->isEmpty()) {
@@ -117,6 +118,7 @@ class giaVatTuController extends Controller
                                 'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                 'tacGia' => $user ? $user->name : null,
                                 'user_id' => $user ? $user->id : null,
+                                'vote_mark' => $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null,
                                 'created_at' => $material_cost->freshTimestamp(),
                                 'updated_at' => $material_cost->freshTimestamp(),
                             ]);
@@ -134,8 +136,10 @@ class giaVatTuController extends Controller
                                         //echo($c);
                                         break;
                                     } else { // bổ xung mới giá
-    
+                                        $voteDaCo = $getItem->vote_mark;
+                                        $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
                                         $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
+                                        $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
                                         DB::table('material_costs')
                                             ->where('id', $getItem->id)
                                             ->update([
@@ -148,6 +152,7 @@ class giaVatTuController extends Controller
                                                 'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                                 'tacGia' => $user ? $user->name : null,
                                                 'user_id' => $user ? $user->id : null,
+                                                'vote_mark' => $voteAfterUpdate,
                                                 'updated_at' => $material_cost->freshTimestamp(),
                                             ]);
                                         // array_push($arrUpdate, [
@@ -178,8 +183,10 @@ class giaVatTuController extends Controller
                                         //echo($c);
                                         break;
                                     } else { // bổ xung mới giá
-    
+                                        $voteDaCo = $getItem->vote_mark;
+                                        $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
                                         $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
+                                        $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
                                         DB::table('material_costs')
                                             ->where('id', $getItem->id)
                                             ->update([
@@ -192,6 +199,7 @@ class giaVatTuController extends Controller
                                                 'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                                 'tacGia' => $user ? $user->name : null,
                                                 'user_id' => $user ? $user->id : null,
+                                                'vote_mark' => $voteAfterUpdate,
                                                 'updated_at' => $material_cost->freshTimestamp(),
                                             ]);
                                         // array_push($arrUpdate, [
@@ -234,23 +242,37 @@ class giaVatTuController extends Controller
                                 ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
                                 ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
                                 ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
+                                ->where('user_id', $user ? $user->id : null)
                                 ->get();
 
                             foreach ($get as $getItem) {
                                 $giaDaCo = $getItem->giaVatTu;
                                 $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
-                                $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
+                                $voteDaCo = $getItem->vote_mark;
+                                $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
+                                $posGia = strpos($giaImport, ':'); // tách giá đến vị trí :
+                                $posVote = strpos($voteImport, ':'); // tách giá đến vị trí :
                                 $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
                                 if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
                                     $arrgiaDaCo = explode(';', $giaDaCo);
                                     for ($key = 0; $key < count($arrgiaDaCo); $key++) {
-                                        if (strpos($arrgiaDaCo[$key], substr($giaImport, 0, $pos)) !== false) {
+                                        if (strpos($arrgiaDaCo[$key], substr($giaImport, 0, $posGia)) !== false) {
                                             unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
                                             break;
                                         }
                                     }
                                     array_push($arrgiaDaCo, $giaImport);
                                     $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+
+                                    $arrvoteDaCo = explode(';', $voteDaCo);
+                                    for ($key = 0; $key < count($arrvoteDaCo); $key++) {
+                                        if (strpos($arrvoteDaCo[$key], substr($voteImport, 0, $posVote)) !== false) {
+                                            unset($arrvoteDaCo[$key]); //xoa bo phan tu trong mang
+                                            break;
+                                        }
+                                    }
+                                    array_push($arrvoteDaCo, $voteImport);
+                                    $voteDaCoUpdate = implode(';', $arrvoteDaCo);
                                     DB::table('material_costs')
                                         ->where('id', $getItem->id)
                                         ->update([
@@ -263,6 +285,7 @@ class giaVatTuController extends Controller
                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
                                             'tacGia' => $user ? $user->name : null,
                                             'user_id' => $user ? $user->id : null,
+                                            'vote_mark' => $voteDaCoUpdate,
                                             'updated_at' => $material_cost->freshTimestamp(),
                                         ]);
 
