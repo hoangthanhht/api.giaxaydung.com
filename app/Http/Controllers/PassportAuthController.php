@@ -231,7 +231,27 @@ class PassportAuthController extends Controller
     }
 
 
-   
+    function paginateCollection($collection, $perPage, $pageName = 'page', $fragment = null)
+    {
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage($pageName);
+        $currentPageItems = $collection->slice(($currentPage - 1) * $perPage, $perPage);
+        parse_str(request()->getQueryString(), $query);
+        unset($query[$pageName]);
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            $collection->count(),
+            $perPage,
+            $currentPage,
+            [
+                'pageName' => $pageName,
+                'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+                'query' => $query,
+                'fragment' => $fragment
+            ]
+        );
+        return response()->json($paginator);
+        //return $paginator;
+    }
 
     public function test() {
     //      $stringArr = '';
@@ -259,8 +279,21 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-   $arr = ['a'=>'a','b'=>'b','a'=>'a','c'=>'c','a'=>'a'];
-    $arr = array_unique($arr, SORT_REGULAR);
-   return $arr;
+    $students = [
+        ['name1' => 'Lo thi vi song'],
+        ['name2' => 'Tran Nhu Nhong'],
+        ['name3' => 'Son Tung MTP'],
+        ['name4' => 'Tung Son Ido'],
+        ['name5' => 'Tung Son Ido1'],
+        ['name6' => 'Tung Son Ido2'],
+        ['name7' => 'Tung Son Ido3'],
+        ['name8' => 'Tung Son Ido4'],
+    ];
+    $collection = collect($students);
+    //return $this->paginateCollection($collection,2);
+    $pages = $collection->paginate(2);
+    // $collection = collect([1,2,3,4,5,6,7,8,9,0]);
+    // $items = $collection->forPage($_GET['page'], 5); //Filter the page var
+     return $pages;
     }
 }

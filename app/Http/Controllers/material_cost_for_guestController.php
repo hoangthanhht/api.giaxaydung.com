@@ -327,21 +327,35 @@ class material_cost_for_guestController extends Controller
 
     }
 
-    public function getInfoBaoGiaOfUser($idUser) {
+    public function getInfoTinhBaoGiaOfUser($idUser) {
         $getTinh = DB::table('material_cost_for_guests')->where('user_id',$idUser)->select('tinh')->distinct()->get();
         $arrTinh = [];
-        $arrKhuVuc = [];
-        $arrThoiDiem = [];
-        $arrKhuVucAndThoiDiem=[];// mảng chứa những bản ghi của tỉnh mà có giá vạt tư khác nhau về khu vực và thời điểm thôi
         foreach ($getTinh as $itemTinh) {
             $getNameTinh = DB::table('province_cities')->where('symbol_province',$itemTinh->tinh)->first();
             $temp = array('value'=>$itemTinh->tinh,'text'=> $getNameTinh->name_province);
             array_push($arrTinh,$temp);
         }
 
-        foreach ($getTinh as $itemTinh) {
-            $getRecordOfTinh = DB::table('material_cost_for_guests')->where('tinh',$itemTinh->tinh)->get();
-            $getTemp = DB::table('material_cost_for_guests')->where('tinh',$itemTinh->tinh)->first();
+       
+        return response()->json(['tinh'=>$arrTinh,
+                                    ], 200); 
+    }
+
+    public function getInfoBaoGiaOfUser(Request $request) {
+        $arrKhuVuc = [];
+        $arrThoiDiem = [];
+        $arrKhuVucAndThoiDiem=[];// mảng chứa những bản ghi của tỉnh mà có giá vạt tư khác nhau về khu vực và thời điểm thôi
+    
+
+        // ($getTinh as $itemTinh) {
+            $getRecordOfTinh = DB::table('material_cost_for_guests')
+            ->where('tinh',$request->tinh)
+            ->where('user_id',$request->idUserImport)
+            ->get();
+            $getTemp = DB::table('material_cost_for_guests')
+            ->where('tinh',$request->tinh)
+            ->where('user_id',$request->idUserImport)
+            ->first();
             $countString = substr_count($getTemp->giaVatTu,';');
             array_push($arrKhuVucAndThoiDiem,$getTemp->giaVatTu);
             foreach ($getRecordOfTinh as $item) {
@@ -351,7 +365,7 @@ class material_cost_for_guestController extends Controller
                 }
             }
            
-        }
+        //}
 
         foreach ($arrKhuVucAndThoiDiem as $itemKvTd) {
             $arrTempString = explode(';', $itemKvTd);
@@ -366,16 +380,60 @@ class material_cost_for_guestController extends Controller
         }
         $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
         $arrKhuVuc = array_unique($arrKhuVuc, SORT_REGULAR);
-        return response()->json(['tinh'=>$arrTinh,
+        return response()->json([
                                  'thoidiem'=>$arrThoiDiem,
                                  'khuvuc'=>$arrKhuVuc   ], 200); 
     }
-    public $arrRecordBG = [];
-    public function viewBaoGiaWithSelecttion(Request $request, &$arrRecordBG) {
-        $getBaoGia = DB::table('material_cost_for_guests')->where('user_id',$request->user_id)
+    public function viewBaoGiaWithSelecttion($user_id,$tinh,$khuvuc,$thoidiem) {
+        $getBaoGia = DB::table('material_cost_for_guests')->where('user_id',$user_id)
+        ->where('tinh',$tinh)
+        ->get();
+        $arrRecordBG = [];
+        $gia = '';
+        $strKvTd = $thoidiem.','.$khuvuc;
+        foreach ($getBaoGia as $item) {
+            $giaVatTu = $item->giaVatTu;
+            $pos = strpos($giaVatTu, $strKvTd);
+    
+            if ($pos !== false) { //tim thay gia im port trong gia da co
+                $arrgiaVatTu = explode(';', $giaVatTu);
+                for ($key = 0; $key < count($arrgiaVatTu); $key++) {
+                    if (strpos($arrgiaVatTu[$key], $strKvTd) !== false) {
+                        $gia = str_replace($strKvTd.':','',$arrgiaVatTu[$key]);
+                        break;
+                    }
+                }                         
+            
+            }
+            $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
+            array_push($arrRecordBG,[
+                'id'=>$item->id,
+                'maVatTu'=>$item->maVatTu,
+                'tenVatTu'=>$item->tenVatTu,
+                'donVi'=>$item->donVi,
+                'nguon'=>$item->nguon,
+                'ghiChu'=>$item->ghiChu,
+                'tinh'=>$getNameTinh->name_province,
+                'tacGia'=>$item->tacGia,
+                'giaVatTu'=>$gia,
+                'khuVuc'=>$khuvuc,
+                'thoiDiem'=>$thoidiem,
+            ]);
+        }
+        
+        $collection = collect($arrRecordBG);
+    //return $this->paginateCollection($collection,2);
+        $pages = $collection->paginate(20);
+        return $pages;
+        //return response()->json($arrRecordBG,200);
+    }
+
+    public function BaoGiaWithSelecttionForSearchApprove(Request $request) {
+        $getBaoGia = DB::table('material_cost_for_guests')
+        ->where('user_id',$request->user_id)
         ->where('tinh',$request->tinh)
         ->get();
-        //$arrRecordBG = [];
+        $arrRecordBG = [];
         $gia = '';
         $strKvTd = $request->thoidiem.','.$request->khuvuc;
         foreach ($getBaoGia as $item) {
@@ -394,6 +452,7 @@ class material_cost_for_guestController extends Controller
             }
             $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
             array_push($arrRecordBG,[
+                'id'=>$item->id,
                 'maVatTu'=>$item->maVatTu,
                 'tenVatTu'=>$item->tenVatTu,
                 'donVi'=>$item->donVi,
@@ -406,8 +465,9 @@ class material_cost_for_guestController extends Controller
                 'thoiDiem'=>$request->thoidiem,
             ]);
         }
-        $paginate = new LengthAwarePaginator($arrRecordBG, count($arrRecordBG), 20);
-        return $paginate;
+        
+        
+        return $arrRecordBG;
         //return response()->json($arrRecordBG,200);
     }
 
@@ -422,6 +482,61 @@ class material_cost_for_guestController extends Controller
             // 'data' => $giaVt,
             $giaVt
         );
+    }
+
+
+    public function updateDataGiaVatTuUserUp(Request $request, $idBg, $idUser)
+    {
+        $user = User::find($idUser);
+        // $pm = $u->getAllPermissions($u->permissions[0]);
+        if ($user->can('edit-gia-vat-tu')) {
+            $itemupdate = material_cost_for_guest::find($idBg);
+            if (!$itemupdate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post not found',
+                ], 400);
+            }
+            $giaDaCo = $itemupdate->giaVatTu;
+            $giaUpDate = $request->thoidiem.','.$request->khuvuc;
+            $arrGiaDaCo = explode(';', $giaDaCo);
+            for ($key = 0; $key < count($arrGiaDaCo); $key++) {
+                if (strpos($arrGiaDaCo[$key], $giaUpDate) !== false) {
+                    unset($arrGiaDaCo[$key]); //xoa bo phan tu trong mang
+                    break;
+                }
+            }
+            array_push($arrGiaDaCo, $giaUpDate.':'.$request->giaVatTu);
+            $giaDaCoUpdate = implode(';', $arrGiaDaCo);
+            $updated =  DB::table('material_cost_for_guests')
+            ->where('id', $idBg)
+            ->update([
+                'maVatTu' => $request->maVatTu && $request->maVatTu !== "null" ? $request->maVatTu : null,
+                'tenVatTu' => $request->tenVatTu && $request->tenVatTu !== "null" ? $request->tenVatTu : null,
+                'donVi' => $request->donVi && $request->donVi !== "null" ? $request->donVi : null,
+                'giaVatTu' => $giaDaCoUpdate,
+                'nguon' => $request->nguon && $request->nguon !== "null" ? $request->nguon : null,
+                'ghiChu' => $request->ghiChu && $request->ghiChu !== "null" ? $request->ghiChu : null,
+
+            ]);
+            if ($updated) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $request->all(),
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post can not be updated',
+                ], 500);
+            }
+        } else {
+            return response([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện tác vụ này',
+            ], 200);
+        }
+
     }
 
     // public function approve(Request $request, $idUserImport, $agreeOverride)

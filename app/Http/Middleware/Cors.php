@@ -24,10 +24,10 @@ class Cors
         ];
         if ( $request->getMethod() === 'OPTIONS' ) {
             return response()
-                    ->json(['status' => 'success'])
-                    ->withHeaders($headers);
+            ->json(['status' => 'success'])
+            ->withHeaders($headers);
         }
-
+        //echo('123');
         $response = $next($request);
 
         $response->headers->add( $headers );

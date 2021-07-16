@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     
     // đổi mật khẩu cho nguoi dung khi da dang nhap
     Route::post('changePassAfterLogin', [ResetPasswordController:: class,'changePass']);
-    // upload và lưu vao database
+    // upload avatar và lưu vao database
     Route::post('upload', [PassportAuthController::class, 'upload']);
     Route::get('details', [PassportAuthController::class, 'details']);
     // route này sẽ gửi lại link xác minh
@@ -64,18 +64,31 @@ Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 
 /* PHẦN UP GIÁ CỦA NGƯỜI DÙNG VÀ APPROVE CỦA QUẢN TRỊ */
 // đưa dữ liệu từ bảng excel vào data base do người dùng up
 Route::post('guestCreateGiaVT/{idUser}/{agreeOverride}', [material_cost_for_guestController::class, 'store']);
-// đưa dữ liệu từ bảng excel vào data base do người dùng up
+// lấy thông tin những người đã up giá
 Route::get('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUserUpBaoGia']);
-// đưa dữ liệu từ bảng excel vào data base do người dùng up
-Route::get('getInfoBaoGiaOfUser/{id}', [material_cost_for_guestController::class, 'getInfoBaoGiaOfUser']);
-// đưa dữ liệu từ bảng excel vào data base do người dùng up
-Route::post('viewBaoGiaWithSelecttion', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
-// đưa dữ liệu từ bảng excel vào data base do người dùng up
+// lấy tỉnh mà 1 người đã up giá
+Route::get('getInfoTinhBaoGiaOfUser/{id}', [material_cost_for_guestController::class, 'getInfoTinhBaoGiaOfUser']);
+// lấy dữ liệu về cảu 1 người up và của 1 địa phương
+Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
+// tạm thời khongodungf route này
 Route::get('getDataTableGiaVTGuest', [material_cost_for_guestController::class, 'getDataTableGiaVTGuest']);
+// lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng
+Route::post('getInfoBaoGiaOfUser', [material_cost_for_guestController::class, 'getInfoBaoGiaOfUser']);
+// lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng
+Route::post('updateDataGiaVatTuUserUp/{id}/{iduser}', [material_cost_for_guestController::class, 'updateDataGiaVatTuUserUp']);
+// lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng phục vụ search trong approve
+Route::post('baoGiaWithSelecttionForSearchApprove', [material_cost_for_guestController::class, 'BaoGiaWithSelecttionForSearchApprove']);
+
+
+
+//=======================================\\//==========================================================//
 
 
 
 
+
+
+/* PHẦN LƯU VÀ CHỈNH SỬA TRONG BẢNG CHÍNH CỦA LƯU VẬT TƯ */
 //api đẻ chỉnh sửa gia vật tư
 Route::post('updateDataGiaVatTu/{id}/{iduser}', [giaVatTuController::class, 'updateDataGiaVatTu']);
 // lấy dữ liệu giá co phan trang về từ data base
@@ -88,7 +101,7 @@ Route::get('getListBaoGia', [giaVatTuController::class, 'getListBaoGiaProvince']
 Route::get('getPriceWithCodeMaterial/{codeMaterial}/{stringVT}', [giaVatTuController::class, 'getPriceWithCodeMaterial']);
 // trả về cho phần mềm báo giá theo từ khóa
 Route::get('getPriceWithKeyWord/{stringVT}/{keyWord}', [giaVatTuController::class, 'getPriceWithKeyWord']);
-
+/* PHẦN API CHO USER */
 // lấy dữ liệu user và role về từ data base
 Route::get('getDataTableUser', [AdminUserController::class, 'index']);
 // lấy dữ liệu role về từ data base
@@ -121,7 +134,7 @@ Route::post('onSystem', [AdminConfigSystem::class, 'onSystem']);
 Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail']);
 // đổi mật khẩu
 Route::post('changePass', [ResetPasswordController:: class,'reset']);
-// lấy đường dãn file
+// lấy đường dãn file avatar
 Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
