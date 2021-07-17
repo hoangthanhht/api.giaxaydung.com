@@ -65,11 +65,11 @@ Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 
 // đưa dữ liệu từ bảng excel vào data base do người dùng up
 Route::post('guestCreateGiaVT/{idUser}/{agreeOverride}', [material_cost_for_guestController::class, 'store']);
 // lấy thông tin những người đã up giá
-Route::get('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUserUpBaoGia']);
+Route::post('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUserUpBaoGia']);
 // lấy tỉnh mà 1 người đã up giá
-Route::get('getInfoTinhBaoGiaOfUser/{id}', [material_cost_for_guestController::class, 'getInfoTinhBaoGiaOfUser']);
+Route::post('getInfoTinhBaoGiaOfUser', [material_cost_for_guestController::class, 'getInfoTinhBaoGiaOfUser']);
 // lấy dữ liệu về cảu 1 người up và của 1 địa phương
-Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
+Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}/{check}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
 // tạm thời khongodungf route này
 Route::get('getDataTableGiaVTGuest', [material_cost_for_guestController::class, 'getDataTableGiaVTGuest']);
 // lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng
@@ -78,8 +78,8 @@ Route::post('getInfoBaoGiaOfUser', [material_cost_for_guestController::class, 'g
 Route::post('updateDataGiaVatTuUserUp/{id}/{iduser}', [material_cost_for_guestController::class, 'updateDataGiaVatTuUserUp']);
 // lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng phục vụ search trong approve
 Route::post('baoGiaWithSelecttionForSearchApprove', [material_cost_for_guestController::class, 'BaoGiaWithSelecttionForSearchApprove']);
-
-
+// lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng phục vụ search trong approve
+Route::post('approveGiaVt/{idUserApprove}/{agreeOverride}', [material_cost_for_guestController::class, 'approve']);
 
 //=======================================\\//==========================================================//
 

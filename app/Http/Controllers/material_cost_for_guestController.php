@@ -37,11 +37,11 @@ class material_cost_for_guestController extends Controller
                             ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
                             ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
                             ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
-                        //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
+                            //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
                             ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
                             ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
                             ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
-                            ->where('user_id', $user ? $user->id : null)
+                            ->where('user_id', $user ? $user->id : null)// check cả id user cho trương hợp người khác up mà cũng cùng các yếu tố trên
                             ->get();
                         // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
                         //    if($get->isEmpty()) {
@@ -310,35 +310,66 @@ class material_cost_for_guestController extends Controller
         }
     }
     // hàm lấy ra thông tin của người đăng báo giá. thông tin về khu vực thời điểm....của báo giá
-    public function getUserUpBaoGia() {
-        $getUserId = DB::table('material_cost_for_guests')->select('user_id')->distinct()->get();
-        $arrUser=[];
-        foreach ($getUserId as $itemUser) {
-            $getUserName = DB::table('material_cost_for_guests')->where('user_id',$itemUser->user_id)->select('tacGia')->distinct()->get();
-            foreach ($getUserName as $itemUserName) {
-
-                $temp = array('value'=>$itemUser->user_id,'text'=> $itemUserName->tacGia);
-                array_push($arrUser,$temp);
+    public function getUserUpBaoGia(Request $request) {
+        if($request->check === 0 ) {
+            $getUserId = DB::table('material_cost_for_guests')->select('user_id')->distinct()->get();
+            $arrUser=[];
+            foreach ($getUserId as $itemUser) {
+                $getUserName = DB::table('material_cost_for_guests')->where('user_id',$itemUser->user_id)->select('tacGia')->distinct()->get();
+                foreach ($getUserName as $itemUserName) {
+    
+                    $temp = array('value'=>$itemUser->user_id,'text'=> $itemUserName->tacGia);
+                    array_push($arrUser,$temp);
+                }
+                
             }
-            
+    
+            return response()->json($arrUser, 200); 
+        }else if ($request->check === 1 ) {
+            $getUserId = DB::table('material_costs')->select('user_id')->distinct()->get();
+            $arrUser=[];
+            foreach ($getUserId as $itemUser) {
+                $getUserName = DB::table('material_costs')->where('user_id',$itemUser->user_id)->select('tacGia')->distinct()->get();
+                foreach ($getUserName as $itemUserName) {
+    
+                    $temp = array('value'=>$itemUser->user_id,'text'=> $itemUserName->tacGia);
+                    array_push($arrUser,$temp);
+                }
+                
+            }
+    
+            return response()->json($arrUser, 200);
         }
-
-        return response()->json($arrUser, 200); 
 
     }
 
-    public function getInfoTinhBaoGiaOfUser($idUser) {
-        $getTinh = DB::table('material_cost_for_guests')->where('user_id',$idUser)->select('tinh')->distinct()->get();
-        $arrTinh = [];
-        foreach ($getTinh as $itemTinh) {
-            $getNameTinh = DB::table('province_cities')->where('symbol_province',$itemTinh->tinh)->first();
-            $temp = array('value'=>$itemTinh->tinh,'text'=> $getNameTinh->name_province);
-            array_push($arrTinh,$temp);
-        }
+    public function getInfoTinhBaoGiaOfUser(Request $request) {
+        if($request->check === 0) {
+            $getTinh = DB::table('material_cost_for_guests')->where('user_id',$request->idUserImport)->select('tinh')->distinct()->get();
+            $arrTinh = [];
+            foreach ($getTinh as $itemTinh) {
+                $getNameTinh = DB::table('province_cities')->where('symbol_province',$itemTinh->tinh)->first();
+                $temp = array('value'=>$itemTinh->tinh,'text'=> $getNameTinh->name_province);
+                array_push($arrTinh,$temp);
+            }
+    
+           
+            return response()->json(['tinh'=>$arrTinh,
+                                        ], 200); 
 
-       
-        return response()->json(['tinh'=>$arrTinh,
-                                    ], 200); 
+        }else {
+            $getTinh = DB::table('material_costs')->where('user_id',$request->idUserImport)->select('tinh')->distinct()->get();
+            $arrTinh = [];
+            foreach ($getTinh as $itemTinh) {
+                $getNameTinh = DB::table('province_cities')->where('symbol_province',$itemTinh->tinh)->first();
+                $temp = array('value'=>$itemTinh->tinh,'text'=> $getNameTinh->name_province);
+                array_push($arrTinh,$temp);
+            }
+    
+           
+            return response()->json(['tinh'=>$arrTinh,
+                                        ], 200); 
+        }
     }
 
     public function getInfoBaoGiaOfUser(Request $request) {
@@ -384,48 +415,165 @@ class material_cost_for_guestController extends Controller
                                  'thoidiem'=>$arrThoiDiem,
                                  'khuvuc'=>$arrKhuVuc   ], 200); 
     }
-    public function viewBaoGiaWithSelecttion($user_id,$tinh,$khuvuc,$thoidiem) {
-        $getBaoGia = DB::table('material_cost_for_guests')->where('user_id',$user_id)
-        ->where('tinh',$tinh)
-        ->get();
-        $arrRecordBG = [];
-        $gia = '';
-        $strKvTd = $thoidiem.','.$khuvuc;
-        foreach ($getBaoGia as $item) {
-            $giaVatTu = $item->giaVatTu;
-            $pos = strpos($giaVatTu, $strKvTd);
-    
-            if ($pos !== false) { //tim thay gia im port trong gia da co
-                $arrgiaVatTu = explode(';', $giaVatTu);
-                for ($key = 0; $key < count($arrgiaVatTu); $key++) {
-                    if (strpos($arrgiaVatTu[$key], $strKvTd) !== false) {
-                        $gia = str_replace($strKvTd.':','',$arrgiaVatTu[$key]);
-                        break;
-                    }
-                }                         
-            
+    public function viewBaoGiaWithSelecttion($user_id,$tinh,$khuvuc,$thoidiem,$check) {
+        if($check === '0') {
+
+            $getBaoGia = DB::table('material_cost_for_guests')->where('user_id',$user_id)
+            ->where('tinh',$tinh)
+            ->get();
+            $arrRecordBG = [];
+            $gia = '';
+            $strKvTd = $thoidiem.','.$khuvuc;
+            foreach ($getBaoGia as $item) {
+                $giaVatTu = $item->giaVatTu;
+                $pos = strpos($giaVatTu, $strKvTd);
+        
+                if ($pos !== false) { //tim thay gia im port trong gia da co
+                    $arrgiaVatTu = explode(';', $giaVatTu);
+                    for ($key = 0; $key < count($arrgiaVatTu); $key++) {
+                        if (strpos($arrgiaVatTu[$key], $strKvTd) !== false) {
+                            $gia = str_replace($strKvTd.':','',$arrgiaVatTu[$key]);
+                            break;
+                        }
+                    }                         
+                
+                    $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
+                    array_push($arrRecordBG,[
+                        'id'=>$item->id,
+                        'maVatTu'=>$item->maVatTu,
+                        'tenVatTu'=>$item->tenVatTu,
+                        'donVi'=>$item->donVi,
+                        'nguon'=>$item->nguon,
+                        'ghiChu'=>$item->ghiChu,
+                        'tinh'=>$getNameTinh->name_province,
+                        'tacGia'=>$item->tacGia,
+                        'giaVatTu'=>$gia,
+                        'khuVuc'=>$khuvuc,
+                        'thoiDiem'=>$thoidiem,
+                    ]);
+                }
             }
-            $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
-            array_push($arrRecordBG,[
-                'id'=>$item->id,
-                'maVatTu'=>$item->maVatTu,
-                'tenVatTu'=>$item->tenVatTu,
-                'donVi'=>$item->donVi,
-                'nguon'=>$item->nguon,
-                'ghiChu'=>$item->ghiChu,
-                'tinh'=>$getNameTinh->name_province,
-                'tacGia'=>$item->tacGia,
-                'giaVatTu'=>$gia,
-                'khuVuc'=>$khuvuc,
-                'thoiDiem'=>$thoidiem,
-            ]);
+            
+            $collection = collect($arrRecordBG);
+        //return $this->paginateCollection($collection,2);
+            $pages = $collection->paginate(20);
+            return $pages;
+            //return response()->json($arrRecordBG,200);
+        }else if($check === '2') {// lấy toàn bộ cac bản giá đã up của user hiện đang login trong bảng material_cost_for_guests
+
+            $getBaoGia = DB::table('material_cost_for_guests')
+            ->where('user_id',$user_id)
+            ->where('tinh',$tinh)
+            ->get();
+            $arrKhuVucAndThoiDiem=[];// mảng chứa những bản ghi của tỉnh mà có giá vạt tư khác nhau về khu vực và thời điểm thôi
+    
+            $getTemp = DB::table('material_cost_for_guests')
+            ->where('tinh',$tinh)
+            ->where('user_id',$user_id)
+            ->first();
+            $countString = substr_count($getTemp->giaVatTu,';');
+            $arrTemp = explode(';', $getTemp->giaVatTu);
+            foreach ($arrTemp as $item) {
+                $arrTemp1 = explode(':', $item);
+                array_push($arrKhuVucAndThoiDiem,$arrTemp1[0]);
+                
+            }
+            array_push($arrKhuVucAndThoiDiem,$getTemp->giaVatTu);
+            foreach ($getBaoGia as $item) {
+                $countStrItem = substr_count($item->giaVatTu,';');
+                if($countString!==$countStrItem) {
+                    $arrTemp = explode(';', $item->giaVatTu);
+                    foreach ($arrTemp as $item) {
+                        $arrTemp1 = explode(':', $item);
+                        array_push($arrKhuVucAndThoiDiem,$arrTemp1[0]);
+                    }
+                }
+            }
+            $arrKhuVucAndThoiDiem = array_unique($arrKhuVucAndThoiDiem, SORT_REGULAR);// loại bỏ trùng lặp
+
+            $arrRecordBG = [];
+            $gia = '';
+            $strKvTd = $thoidiem.','.$khuvuc;
+        foreach ($arrKhuVucAndThoiDiem as $itemArrKhuVucAndThoiDiem) {
+            foreach ($getBaoGia as $item) {
+                $giaVatTu = $item->giaVatTu;
+                $pos = strpos($giaVatTu, $itemArrKhuVucAndThoiDiem);
+        
+                if ($pos !== false) { //tim thay gia im port trong gia da co
+                    $arrgiaVatTu = explode(';', $giaVatTu);
+                    for ($key = 0; $key < count($arrgiaVatTu); $key++) {
+                        if (strpos($arrgiaVatTu[$key], $itemArrKhuVucAndThoiDiem) !== false) {
+                            $gia = str_replace($itemArrKhuVucAndThoiDiem.':','',$arrgiaVatTu[$key]);
+                            break;
+                        }
+                    }                         
+                    $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
+                    array_push($arrRecordBG,[
+                        'id'=>$item->id,
+                        'maVatTu'=>$item->maVatTu,
+                        'tenVatTu'=>$item->tenVatTu,
+                        'donVi'=>$item->donVi,
+                        'nguon'=>$item->nguon,
+                        'ghiChu'=>$item->ghiChu,
+                        'tinh'=>$getNameTinh->name_province,
+                        'tacGia'=>$item->tacGia,
+                        'giaVatTu'=>$gia,
+                        'khuVuc'=>$khuvuc,
+                        'thoiDiem'=>$thoidiem,
+                    ]);
+                }
+            }
+        }
+            $collection = collect($arrRecordBG);
+        //return $this->paginateCollection($collection,2);
+            $pages = $collection->paginate(20);
+            return $pages;
+            //return response()->json($arrRecordBG,200);
+        }
+        else {
+            $getBaoGia = DB::table('material_costs')->where('user_id',$user_id)
+            ->where('tinh',$tinh)
+            ->get();
+            $arrRecordBG = [];
+            $gia = '';
+            $strKvTd = $thoidiem.','.$khuvuc;
+            foreach ($getBaoGia as $item) {
+                $giaVatTu = $item->giaVatTu;
+                $pos = strpos($giaVatTu, $strKvTd);
+        
+                if ($pos !== false) { //tim thay gia im port trong gia da co
+                    $arrgiaVatTu = explode(';', $giaVatTu);
+                    for ($key = 0; $key < count($arrgiaVatTu); $key++) {
+                        if (strpos($arrgiaVatTu[$key], $strKvTd) !== false) {
+                            $gia = str_replace($strKvTd.':','',$arrgiaVatTu[$key]);
+                            break;
+                        }
+                    }                         
+                
+                    $getNameTinh = DB::table('province_cities')->where('symbol_province',$item->tinh)->first();
+                    array_push($arrRecordBG,[
+                        'id'=>$item->id,
+                        'maVatTu'=>$item->maVatTu,
+                        'tenVatTu'=>$item->tenVatTu,
+                        'donVi'=>$item->donVi,
+                        'nguon'=>$item->nguon,
+                        'ghiChu'=>$item->ghiChu,
+                        'tinh'=>$getNameTinh->name_province,
+                        'tacGia'=>$item->tacGia,
+                        'giaVatTu'=>$gia,
+                        'khuVuc'=>$khuvuc,
+                        'thoiDiem'=>$thoidiem,
+                    ]);
+                }
+            }
+            
+            $collection = collect($arrRecordBG);
+        //return $this->paginateCollection($collection,2);
+            $pages = $collection->paginate(20);
+            return $pages;
+            //return response()->json($arrRecordBG,200);
         }
         
-        $collection = collect($arrRecordBG);
-    //return $this->paginateCollection($collection,2);
-        $pages = $collection->paginate(20);
-        return $pages;
-        //return response()->json($arrRecordBG,200);
     }
 
     public function BaoGiaWithSelecttionForSearchApprove(Request $request) {
@@ -539,302 +687,329 @@ class material_cost_for_guestController extends Controller
 
     }
 
-    // public function approve(Request $request, $idUserImport, $agreeOverride)
-    // {
-    //     $material_cost = new material_cost();
-    //     $user = User::find($idUserImport);
-    //     if ($user->can('create-gia-vat-tu')) {
-    //         $user = User::find($idUserImport);
-    //         $arrTemp = [];
-    //         $arrUpdate = [];
-    //         $arrData = $get = DB::table('material_cost_for_guests')
-    //         ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
-    //         ->get();
-    //         //$arrData = json_decode($request->,true);// dungf cachs nay thi $arrData se la mang con neu khong co true thi se la object
-    //         $exitsPrice = false;
-    //         $arrDupplicate = [];// mảng chứa các công việc có 6 tiêu chí của $get trùng nhau nhưng chỉ lấy 1 lần thôi
-    //         $arrCheck = [];// mảng xác nhận rằng đã update 1 lần của $get. mảng này sẽ có số phần tử bằng với $arrDupplicate sau khi đã check
-    //         DB::beginTransaction(); // đảm bảo tính toàn vẹn dữ liệu
-    //         try {
-    //             foreach ($arrData as $item) {
-    //                 $count = count(get_object_vars($item)); // dung ham nay de dem so luong cua 1 stdclass object sau khi decode
-    //                 //giaVatTu::create([
-    //                 if ($count >= 8) {// điều kiện bắt trường hợp bảng giá thiếu 1 trong các cột giá , mã hay nguồn thì sẽ lỗi. đây là trường hợp dòng chỉ có 2 - 3 ô
+    public function approve(Request $request, $idUserApprove, $agreeOverride)
+    {
+        $material_cost = new material_cost();
+        $user = User::find($idUserApprove);
+        if ($user->can('create-gia-vat-tu')) {
+            $user = User::find($idUserApprove);
+            $arrTemp = [];
+            $arrUpdate = [];
+            DB::beginTransaction(); // đảm bảo tính toàn vẹn dữ liệu
+            $arrData = DB::table('material_cost_for_guests')
+            ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
+            ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
+            ->get();
+
+            foreach ($arrData as $item) {
+                $giaDaCo = $item->giaVatTu;
+                $giaDaCoUpdate='';
+                $pos1 = strpos($giaDaCo, $request->giaVt); // chưa vị trí tìm đc trong gia đã có
+                if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+                    $arrgiaDaCo = explode(';', $giaDaCo);
+                    for ($key = 0; $key < count($arrgiaDaCo); $key++) {
+                        if (strpos($arrgiaDaCo[$key], $request->giaVt) === false) {
+                            unset($arrgiaDaCo[$key]); //xoa bo phan tu khong chua $request->giaVt
+                        }
+                    }
+                    $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+                }
+                $item->giaVatTu = $giaDaCoUpdate;
+            }
+            //$arrData = json_decode($request->,true);// dungf cachs nay thi $arrData se la mang con neu khong co true thi se la object
+            $exitsPrice = false;
+            $arrDupplicate = [];// mảng chứa các công việc có 6 tiêu chí của $get trùng nhau nhưng chỉ lấy 1 lần thôi
+            $arrCheck = [];// mảng xác nhận rằng đã update 1 lần của $get. mảng này sẽ có số phần tử bằng với $arrDupplicate sau khi đã check
+           
+            try {
+                foreach ($arrData as $item) {
+                    $count = count(get_object_vars($item)); // dung ham nay de dem so luong cua 1 stdclass object sau khi decode
+                    //giaVatTu::create([
+                    if ($count >= 8) {// điều kiện bắt trường hợp bảng giá thiếu 1 trong các cột giá , mã hay nguồn thì sẽ lỗi. đây là trường hợp dòng chỉ có 2 - 3 ô
                        
-    //                     $get = DB::table('material_cost_for_guests')
-    //                         ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
-    //                         ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
-    //                         ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
-    //                     //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
-    //                         ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
-    //                         ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
-    //                         ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
-    //                         ->where('user_id', $user ? $user->id : null)
-    //                         ->get();
-    //                     // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
-    //                     //    if($get->isEmpty()) {
-    //                     //       echo('empty($get)');
-    //                     //       echo(gettype($get));
-    //                     //       echo($get->isEmpty());
+                        $get = DB::table('material_costs')
+                            ->where('maVatTu', $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null)
+                            ->where('tenVatTu', $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null)
+                            ->where('donVi', $item->donVi && $item->donVi !== "null" ? $item->donVi : null)
+                        //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
+                            ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
+                            ->where('ghiChu', $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null)
+                            ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
+                            ->where('user_id', $item->user_id && $item->user_id !== "null" ? $item->user_id : null)
+                            ->get();
+                        // chú ý phuong thức get trả về 1 colection chứ không phải là 1 mảng nên kiểu dữ liệu của $get sẽ không phải mảng
+                        //    if($get->isEmpty()) {
+                        //       echo('empty($get)');
+                        //       echo(gettype($get));
+                        //       echo($get->isEmpty());
 
-    //                     //    }
-    //                     if(count($get) > 1) {//sét trường hợp mà $get có nhiều loại vật tư trùng nhau thì chỉ cho update giá 1 làn khi duyết qua $get 1 vòng 
-    //                         // còn các vòng sau thì khong update giá nữa không thì không update giá đc. ví dụ có 3 công việc 1,2,3 giống hệt nhau trong bảng vật tư
-    //                         // khi đó khi lấy công việc 1 thì $get có 3 phần tử. khi lặp đến công việc 2 thì $get cũng có 3 nên ta chỉ cho update giá khi lặp $get của
-    //                         // công việc 1 thôi
-    //                         $exit = false;
-    //                         foreach ($get as $getItem) {
-    //                             if(count($arrDupplicate)>0) {
-    //                                 foreach ($arrDupplicate as $arrDupplicateItem) {
+                        //    }
+                        if(count($get) > 1) {//sét trường hợp mà $get có nhiều loại vật tư trùng nhau thì chỉ cho update giá 1 làn khi duyết qua $get 1 vòng 
+                            // còn các vòng sau thì khong update giá nữa không thì không update giá đc. ví dụ có 3 công việc 1,2,3 giống hệt nhau trong bảng vật tư
+                            // khi đó khi lấy công việc 1 thì $get có 3 phần tử. khi lặp đến công việc 2 thì $get cũng có 3 nên ta chỉ cho update giá khi lặp $get của
+                            // công việc 1 thôi
+                            $exit = false;
+                            foreach ($get as $getItem) {
+                                if(count($arrDupplicate)>0) {
+                                    foreach ($arrDupplicate as $arrDupplicateItem) {
 
-    //                                     if(($arrDupplicateItem->maVatTu && $arrDupplicateItem->maVatTu !== "null" ? $arrDupplicateItem->maVatTu : null) == ($getItem->maVatTu && $getItem->maVatTu !== "null" ? $getItem->maVatTu : null)
-    //                                     && ($arrDupplicateItem->tenVatTu && $arrDupplicateItem->tenVatTu !== "null" ? $arrDupplicateItem->tenVatTu : null) == ($getItem->tenVatTu && $getItem->tenVatTu !== "null" ? $getItem->tenVatTu : null)
-    //                                     && ($arrDupplicateItem->donVi && $arrDupplicateItem->donVi !== "null" ? $arrDupplicateItem->donVi : null) == ($getItem->donVi && $getItem->donVi !== "null" ? $getItem->donVi : null)
-    //                                     && ($arrDupplicateItem->nguon && $arrDupplicateItem->nguon !== "null" ? $arrDupplicateItem->nguon : null) == ($getItem->nguon && $getItem->nguon !== "null" ? $getItem->nguon : null)
-    //                                     && ($arrDupplicateItem->ghiChu && $arrDupplicateItem->ghiChu !== "null" ? $arrDupplicateItem->ghiChu : null) == ($getItem->ghiChu && $getItem->ghiChu !== "null" ? $getItem->ghiChu : null)
-    //                                     && ($arrDupplicateItem->tinh && $arrDupplicateItem->tinh !== "null" ? $arrDupplicateItem->tinh : null) == ($getItem->tinh && $getItem->tinh !== "null" ? $getItem->tinh : null))
-    //                                     {
-    //                                         $exit = true;
-    //                                         break;
-    //                                     }
-    //                                 }
-    //                                 if($exit == false) {
+                                        if(($arrDupplicateItem->maVatTu && $arrDupplicateItem->maVatTu !== "null" ? $arrDupplicateItem->maVatTu : null) == ($getItem->maVatTu && $getItem->maVatTu !== "null" ? $getItem->maVatTu : null)
+                                        && ($arrDupplicateItem->tenVatTu && $arrDupplicateItem->tenVatTu !== "null" ? $arrDupplicateItem->tenVatTu : null) == ($getItem->tenVatTu && $getItem->tenVatTu !== "null" ? $getItem->tenVatTu : null)
+                                        && ($arrDupplicateItem->donVi && $arrDupplicateItem->donVi !== "null" ? $arrDupplicateItem->donVi : null) == ($getItem->donVi && $getItem->donVi !== "null" ? $getItem->donVi : null)
+                                        && ($arrDupplicateItem->nguon && $arrDupplicateItem->nguon !== "null" ? $arrDupplicateItem->nguon : null) == ($getItem->nguon && $getItem->nguon !== "null" ? $getItem->nguon : null)
+                                        && ($arrDupplicateItem->ghiChu && $arrDupplicateItem->ghiChu !== "null" ? $arrDupplicateItem->ghiChu : null) == ($getItem->ghiChu && $getItem->ghiChu !== "null" ? $getItem->ghiChu : null)
+                                        && ($arrDupplicateItem->tinh && $arrDupplicateItem->tinh !== "null" ? $arrDupplicateItem->tinh : null) == ($getItem->tinh && $getItem->tinh !== "null" ? $getItem->tinh : null))
+                                        {
+                                            $exit = true;
+                                            break;
+                                        }
+                                    }
+                                    if($exit == false) {
                                         
-    //                                         array_push($arrDupplicate,$getItem);
-    //                                         $exit = true;
-    //                                         break;
+                                            array_push($arrDupplicate,$getItem);
+                                            $exit = true;
+                                            break;
                                         
-    //                                 }
-    //                             } else {
-    //                                 array_push($arrDupplicate,$getItem);
-    //                                 break;
-    //                             }
-    //                             if($exit == true){
-    //                                 break;
-    //                             }
-    //                         }
-    //                     }
-    //                     if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
+                                    }
+                                } else {
+                                    array_push($arrDupplicate,$getItem);
+                                    break;
+                                }
+                                if($exit == true){
+                                    break;
+                                }
+                            }
+                        }
+                        if ($get->isEmpty()) { // không tìm thấy bản ghi nào trùng
 
-    //                         array_push($arrTemp, [
-    //                             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                             'giaVatTu' => $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null,
-    //                             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                             'tacGia' => $user ? $user->name : null,
-    //                             'user_id' => $user ? $user->id : null,
-    //                             'vote_mark' => $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null,
-    //                             'created_at' => $material_cost->freshTimestamp(),
-    //                             'updated_at' => $material_cost->freshTimestamp(),
-    //                         ]);
-    //                     } else { // truong họp khong trung
-    //                         if(count($get) == 1) {
-    //                             foreach ($get as $getItem) {
-    //                                 $giaDaCo = $getItem->giaVatTu;
-    //                                 $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
-    //                                 $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
-    //                                 $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
+                            array_push($arrTemp, [
+                                'maVatTu' => $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null,
+                                'tenVatTu' => $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null,
+                                'donVi' => $item->donVi && $item->donVi !== "null" ? $item->donVi : null,
+                                'giaVatTu' => $item->giaVatTu && $item->giaVatTu !== "null" ? $item->giaVatTu : null,
+                                'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                'ghiChu' => $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null,
+                                'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                'tacGia' => $item->tacGia && $item->tacGia !== "null" ? $item->tacGia : null,
+                                'user_id' => $item->user_id && $item->user_id !== "null" ? $item->user_id : null,
+                                'vote_mark' => $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null,
+                                'created_at' => $material_cost->freshTimestamp(),
+                                'updated_at' => $material_cost->freshTimestamp(),
+                            ]);
+                        } else { // truong họp khong trung
+                            if(count($get) == 1) {
+                                foreach ($get as $getItem) {
+                                    $giaDaCo = $getItem->giaVatTu;
+                                    $giaImport = $item->giaVatTu && $item->giaVatTu !== "null" ? $item->giaVatTu : null;
+                                    $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
+                                    $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
     
-    //                                 if ($pos1 !== false) { //tim thay gia im port trong gia da co
+                                    if ($pos1 !== false) { //tim thay gia im port trong gia da co
                                         
-    //                                     $exitsPrice = true;
-    //                                     //echo($c);
-    //                                     break;
-    //                                 } else { // bổ xung mới giá
-    //                                     $voteDaCo = $getItem->vote_mark;
-    //                                     $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
-    //                                     $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
-    //                                     $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
-    //                                     DB::table('material_cost_for_guests')
-    //                                         ->where('id', $getItem->id)
-    //                                         ->update([
-    //                                             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                                             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                                             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                                             'giaVatTu' => $giaAfterUpdate,
-    //                                             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                                             'tacGia' => $user ? $user->name : null,
-    //                                             'user_id' => $user ? $user->id : null,
-    //                                             'vote_mark' => $voteAfterUpdate,
-    //                                             'updated_at' => $material_cost->freshTimestamp(),
-    //                                         ]);
-    //                                     // array_push($arrUpdate, [
-    //                                     //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                                     //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                                     //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                                     //             'giaVatTu' => $giaAfterUpdate,
-    //                                     //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                                     //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                                     //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                                     //             'tacGia' => $user ? $user->name : null,
-    //                                     //             'id' => $getItem->id
-    //                                     // ]);
-    //                                 }
-    //                             }
-    //                         }
+                                        $exitsPrice = true;
+                                        //echo($c);
+                                        break;
+                                    } else { // bổ xung mới giá
+                                        $voteDaCo = $getItem->vote_mark;
+                                        $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
+                                        $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
+                                        $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
+                                        DB::table('material_costs')
+                                            ->where('id', $getItem->id)
+                                            ->update([
+                                                'maVatTu' => $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null,
+                                                'tenVatTu' => $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null,
+                                                'donVi' => $item->donVi && $item->donVi !== "null" ? $item->donVi : null,
+                                                'giaVatTu' => $giaAfterUpdate,
+                                                'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                                'ghiChu' => $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null,
+                                                'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                                'tacGia' => $item->tacGia && $item->tacGia !== "null" ? $item->tacGia : null,
+                                                'user_id' => $item->user_id && $item->user_id !== "null" ? $item->user_id : null,
+                                                'vote_mark' => $voteAfterUpdate,
+                                                'updated_at' => $material_cost->freshTimestamp(),
+                                            ]);
+                                        // array_push($arrUpdate, [
+                                        //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
+                                        //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
+                                        //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
+                                        //             'giaVatTu' => $giaAfterUpdate,
+                                        //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                        //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
+                                        //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                        //             'tacGia' => $user ? $user->name : null,
+                                        //             'id' => $getItem->id
+                                        // ]);
+                                    }
+                                }
+                            }
 
-    //                         if(count($get) > 1 && (count($arrDupplicate) !== count($arrCheck))) {// trường hợp khi chưa update thì $arrDupplicate và arrcheck sẽ có số phần tử k bằng nhau
-    //                             foreach ($get as $getItem) {
-    //                                 $giaDaCo = $getItem->giaVatTu;
-    //                                 $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
-    //                                 $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
-    //                                 $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
+                            if(count($get) > 1 && (count($arrDupplicate) !== count($arrCheck))) {// trường hợp khi chưa update thì $arrDupplicate và arrcheck sẽ có số phần tử k bằng nhau
+                                foreach ($get as $getItem) {
+                                    $giaDaCo = $getItem->giaVatTu;
+                                    $giaImport = $item->giaVatTu && $item->giaVatTu !== "null" ? $item->giaVatTu : null;
+                                    $pos = strpos($giaImport, ':'); // tách giá đến vị trí :
+                                    $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
     
-    //                                 if ($pos1 !== false) { //tim thay gia import trong gia da co
+                                    if ($pos1 !== false) { //tim thay gia import trong gia da co
                                         
-    //                                     $exitsPrice = true;
-    //                                     //echo($c);
-    //                                     break;
-    //                                 } else { // bổ xung mới giá
-    //                                     $voteDaCo = $getItem->vote_mark;
-    //                                     $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
-    //                                     $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
-    //                                     $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
-    //                                     DB::table('material_cost_for_guests')
-    //                                         ->where('id', $getItem->id)
-    //                                         ->update([
-    //                                             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                                             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                                             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                                             'giaVatTu' => $giaAfterUpdate,
-    //                                             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                                             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                                             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                                             'tacGia' => $user ? $user->name : null,
-    //                                             'user_id' => $user ? $user->id : null,
-    //                                             'vote_mark' => $voteAfterUpdate,
-    //                                             'updated_at' => $material_cost->freshTimestamp(),
-    //                                         ]);
-    //                                     // array_push($arrUpdate, [
-    //                                     //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                                     //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                                     //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                                     //             'giaVatTu' => $giaAfterUpdate,
-    //                                     //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                                     //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                                     //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                                     //             'tacGia' => $user ? $user->name : null,
-    //                                     //             'id' => $getItem->id
-    //                                     // ]);
-    //                                 }
-    //                             }
-    //                             array_push($arrCheck,'okcheck');
-    //                         }
-    //                     }
-    //                     if ($exitsPrice === true) {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             if ($exitsPrice === true) {
-    //                 if ($agreeOverride === "0") {
-    //                     return response()->json([
-    //                         'code' => 200,
-    //                         'exist' => true,
-    //                         'message' => 'Bản ghi đã tồn tại',
-    //                     ]);
-    //                 }
-    //                 if ($agreeOverride === "1") { // dong y ghi de
-    //                     foreach ($arrData as $item) {
-    //                         //giaVatTu::create([
-    //                         $get = DB::table('material_cost_for_guests')
-    //                             ->where('maVatTu', $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null)
-    //                             ->where('tenVatTu', $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null)
-    //                             ->where('donVi', $item->donvi && $item->donvi !== "null" ? $item->donvi : null)
-    //                         //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
-    //                             ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
-    //                             ->where('ghiChu', $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null)
-    //                             ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
-    //                             ->where('user_id', $user ? $user->id : null)
-    //                             ->get();
+                                        $exitsPrice = true;
+                                        //echo($c);
+                                        break;
+                                    } else { // bổ xung mới giá
+                                        $voteDaCo = $getItem->vote_mark;
+                                        $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
+                                        $giaAfterUpdate = $giaDaCo . ";" . $giaImport;
+                                        $voteAfterUpdate = $voteDaCo . ";" . $voteImport;
+                                        DB::table('material_costs')
+                                            ->where('id', $getItem->id)
+                                            ->update([
+                                                'maVatTu' => $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null,
+                                                'tenVatTu' => $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null,
+                                                'donVi' => $item->donVi && $item->donVi !== "null" ? $item->donVi : null,
+                                                'giaVatTu' => $giaAfterUpdate,
+                                                'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                                'ghiChu' => $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null,
+                                                'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                                'tacGia' => $item->tacGia && $item->tacGia !== "null" ? $item->tacGia : null,
+                                                'user_id' => $item->user_id && $item->user_id !== "null" ? $item->user_id : null,
+                                                'vote_mark' => $voteAfterUpdate,
+                                                'updated_at' => $material_cost->freshTimestamp(),
+                                            ]);
+                                        // array_push($arrUpdate, [
+                                        //             'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
+                                        //             'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
+                                        //             'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
+                                        //             'giaVatTu' => $giaAfterUpdate,
+                                        //             'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                        //             'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
+                                        //             'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                        //             'tacGia' => $user ? $user->name : null,
+                                        //             'id' => $getItem->id
+                                        // ]);
+                                    }
+                                }
+                                array_push($arrCheck,'okcheck');
+                            }
+                        }
+                        if ($exitsPrice === true) {
+                            break;
+                        }
+                    }
+                }
+                if ($exitsPrice === true) {
+                    if ($agreeOverride === "0") {
+                        return response()->json([
+                            'code' => 200,
+                            'exist' => true,
+                            'message' => 'Bản ghi đã tồn tại',
+                        ]);
+                    }
+                    if ($agreeOverride === "1") { // dong y ghi de
+                        foreach ($arrData as $item) {
+                            //giaVatTu::create([
+                            $get = DB::table('material_costs')
+                                ->where('maVatTu', $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null)
+                                ->where('tenVatTu', $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null)
+                                ->where('donVi', $item->donVi && $item->donVi !== "null" ? $item->donVi : null)
+                            //->where('giaVatTu', $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null)
+                                ->where('nguon', $item->nguon && $item->nguon !== "null" ? $item->nguon : null)
+                                ->where('ghiChu', $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null)
+                                ->where('tinh', $item->tinh && $item->tinh !== "null" ? $item->tinh : null)
+                                ->where('user_id', $item->user_id && $item->user_id !== "null" ? $item->user_id : null)
+                                ->get();
 
-    //                         foreach ($get as $getItem) {
-    //                             $giaDaCo = $getItem->giaVatTu;
-    //                             $giaImport = $item->giavattu && $item->giavattu !== "null" ? $item->giavattu : null;
-    //                             $voteDaCo = $getItem->vote_mark;
-    //                             $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
-    //                             $posGia = strpos($giaImport, ':'); // tách giá đến vị trí :
-    //                             $posVote = strpos($voteImport, ':'); // tách giá đến vị trí :
-    //                             $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
-    //                             if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
-    //                                 $arrgiaDaCo = explode(';', $giaDaCo);
-    //                                 for ($key = 0; $key < count($arrgiaDaCo); $key++) {
-    //                                     if (strpos($arrgiaDaCo[$key], substr($giaImport, 0, $posGia)) !== false) {
-    //                                         unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
-    //                                         break;
-    //                                     }
-    //                                 }
-    //                                 array_push($arrgiaDaCo, $giaImport);
-    //                                 $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+                            foreach ($get as $getItem) {
+                                $giaDaCo = $getItem->giaVatTu;
+                                $giaImport = $item->giaVatTu && $item->giaVatTu !== "null" ? $item->giaVatTu : null;
+                                $voteDaCo = $getItem->vote_mark;
+                                $voteImport = $item->vote_mark && $item->vote_mark !== "null" ? $item->vote_mark : null;
+                                $posGia = strpos($giaImport, ':'); // tách giá đến vị trí :
+                                $posVote = strpos($voteImport, ':'); // tách giá đến vị trí :
+                                $pos1 = strpos($giaDaCo, substr($giaImport, 0, $pos)); // chưa vị trí tìm đc trong gia đã có
+                                if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+                                    $arrgiaDaCo = explode(';', $giaDaCo);
+                                    for ($key = 0; $key < count($arrgiaDaCo); $key++) {
+                                        if (strpos($arrgiaDaCo[$key], substr($giaImport, 0, $posGia)) !== false) {
+                                            unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
+                                            break;
+                                        }
+                                    }
+                                    array_push($arrgiaDaCo, $giaImport);
+                                    $giaDaCoUpdate = implode(';', $arrgiaDaCo);
 
-    //                                 $arrvoteDaCo = explode(';', $voteDaCo);
-    //                                 for ($key = 0; $key < count($arrvoteDaCo); $key++) {
-    //                                     if (strpos($arrvoteDaCo[$key], substr($voteImport, 0, $posVote)) !== false) {
-    //                                         unset($arrvoteDaCo[$key]); //xoa bo phan tu trong mang
-    //                                         break;
-    //                                     }
-    //                                 }
-    //                                 array_push($arrvoteDaCo, $voteImport);
-    //                                 $voteDaCoUpdate = implode(';', $arrvoteDaCo);
-    //                                 DB::table('material_cost_for_guests')
-    //                                     ->where('id', $getItem->id)
-    //                                     ->update([
-    //                                         'maVatTu' => $item->mavattu && $item->mavattu !== "null" ? $item->mavattu : null,
-    //                                         'tenVatTu' => $item->tenvattu && $item->tenvattu !== "null" ? $item->tenvattu : null,
-    //                                         'donVi' => $item->donvi && $item->donvi !== "null" ? $item->donvi : null,
-    //                                         'giaVatTu' => $giaDaCoUpdate,
-    //                                         'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
-    //                                         'ghiChu' => $item->ghichu && $item->ghichu !== "null" ? $item->ghichu : null,
-    //                                         'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
-    //                                         'tacGia' => $user ? $user->name : null,
-    //                                         'user_id' => $user ? $user->id : null,
-    //                                         'vote_mark' => $voteDaCoUpdate,
-    //                                         'updated_at' => $material_cost->freshTimestamp(),
-    //                                     ]);
+                                    $arrvoteDaCo = explode(';', $voteDaCo);
+                                    for ($key = 0; $key < count($arrvoteDaCo); $key++) {
+                                        if (strpos($arrvoteDaCo[$key], substr($voteImport, 0, $posVote)) !== false) {
+                                            unset($arrvoteDaCo[$key]); //xoa bo phan tu trong mang
+                                            break;
+                                        }
+                                    }
+                                    array_push($arrvoteDaCo, $voteImport);
+                                    $voteDaCoUpdate = implode(';', $arrvoteDaCo);
+                                    DB::table('material_costs')
+                                        ->where('id', $getItem->id)
+                                        ->update([
+                                            'maVatTu' => $item->maVatTu && $item->maVatTu !== "null" ? $item->maVatTu : null,
+                                            'tenVatTu' => $item->tenVatTu && $item->tenVatTu !== "null" ? $item->tenVatTu : null,
+                                            'donVi' => $item->donVi && $item->donVi !== "null" ? $item->donVi : null,
+                                            'giaVatTu' => $giaDaCoUpdate,
+                                            'nguon' => $item->nguon && $item->nguon !== "null" ? $item->nguon : null,
+                                            'ghiChu' => $item->ghiChu && $item->ghiChu !== "null" ? $item->ghiChu : null,
+                                            'tinh' => $item->tinh && $item->tinh !== "null" ? $item->tinh : null,
+                                            'tacGia' => $item->tacGia && $item->tacGia !== "null" ? $item->tacGia : null,
+                                            'user_id' => $item->user_id && $item->user_id !== "null" ? $item->user_id : null,
+                                            'vote_mark' => $voteDaCoUpdate,
+                                            'updated_at' => $material_cost->freshTimestamp(),
+                                        ]);
 
-    //                             }
-    //                         }
-    //                     }
-    //                     DB::commit();
-    //                     return response()->json([
-    //                         'code' => 200,
-    //                         'message' => 'Lưu xong giá vật tư',
-    //                     ]);
-    //                 }
-    //                 if ($agreeOverride === "2") { // khong dong y ghi de
-    //                     return;
-    //                 }
-    //             } else {
-    //                 //  $controlUpdate = new giaVatTuController();
-    //                 //  $controlUpdate->sortTasks($arrUpdate);
-    //                 // //giaVatTu::updated($arrUpdate);
-    //                 material_cost_for_guest::insert($arrTemp); // phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
-    //                 // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
-    //                 $arrTemp = [];
-    //                 $arrUpdate = [];
-    //                 DB::commit();
-    //                 return response()->json([
-    //                     'code' => 200,
-    //                     'message' => 'Lưu xong giá vật tư',
-    //                 ]);
-    //             }
-    //         } catch (Exception $exception) {
-    //             DB::rollBack();
-    //             $this->reportException($exception);
+                                }
+                            }
+                        }
 
-    //             $response = $this->renderException($request, $exception);
+                        DB::table('material_cost_for_guests')
+                        ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
+                        ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
+                        ->delete();
+                        DB::commit();
+                        return response()->json([
+                            'code' => 200,
+                            'message' => 'Lưu xong giá vật tư',
+                        ]);
+                    }
+                    if ($agreeOverride === "2") { // khong dong y ghi de
+                        return;
+                    }
+                } else {
+                    //  $controlUpdate = new giaVatTuController();
+                    //  $controlUpdate->sortTasks($arrUpdate);
+                    // //giaVatTu::updated($arrUpdate);
+                    material_cost::insert($arrTemp); // phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
+                    // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
+                    $arrTemp = [];
+                    $arrUpdate = [];
+                    DB::table('material_cost_for_guests')
+                        ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
+                        ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
+                        ->delete();
+                    DB::commit();
+                    return response()->json([
+                        'code' => 200,
+                        'message' => 'Lưu xong giá vật tư',
+                    ]);
+                }
+            } catch (Exception $exception) {
+                DB::rollBack();
+                $this->reportException($exception);
 
-    //         }
-    //     } else {
-    //         return response([
-    //             'success' => false,
-    //             'message' => 'Bạn không có quyền thực hiện tác vụ này',
-    //         ], 200);
-    //     }
-    // }
+                $response = $this->renderException($request, $exception);
+
+            }
+        } else {
+            return response([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện tác vụ này',
+            ], 200);
+        }
+    }
 }

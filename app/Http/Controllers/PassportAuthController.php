@@ -279,21 +279,8 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    $students = [
-        ['name1' => 'Lo thi vi song'],
-        ['name2' => 'Tran Nhu Nhong'],
-        ['name3' => 'Son Tung MTP'],
-        ['name4' => 'Tung Son Ido'],
-        ['name5' => 'Tung Son Ido1'],
-        ['name6' => 'Tung Son Ido2'],
-        ['name7' => 'Tung Son Ido3'],
-        ['name8' => 'Tung Son Ido4'],
-    ];
-    $collection = collect($students);
-    //return $this->paginateCollection($collection,2);
-    $pages = $collection->paginate(2);
-    // $collection = collect([1,2,3,4,5,6,7,8,9,0]);
-    // $items = $collection->forPage($_GET['page'], 5); //Filter the page var
-     return $pages;
+    $arrKhuVucAndThoiDiem = ['thanh','12','thanh',34,'12'];
+    $arrKhuVucAndThoiDiem = array_unique($arrKhuVucAndThoiDiem, SORT_REGULAR);
+        return $arrKhuVucAndThoiDiem;
     }
 }
