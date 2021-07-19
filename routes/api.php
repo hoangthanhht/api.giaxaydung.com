@@ -69,7 +69,7 @@ Route::post('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUs
 // lấy tỉnh mà 1 người đã up giá
 Route::post('getInfoTinhBaoGiaOfUser', [material_cost_for_guestController::class, 'getInfoTinhBaoGiaOfUser']);
 // lấy dữ liệu về cảu 1 người up và của 1 địa phương
-Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}/{check}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
+Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}/{check}/{user_id_view}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
 // tạm thời khongodungf route này
 Route::get('getDataTableGiaVTGuest', [material_cost_for_guestController::class, 'getDataTableGiaVTGuest']);
 // lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng
@@ -80,6 +80,10 @@ Route::post('updateDataGiaVatTuUserUp/{id}/{iduser}', [material_cost_for_guestCo
 Route::post('baoGiaWithSelecttionForSearchApprove', [material_cost_for_guestController::class, 'BaoGiaWithSelecttionForSearchApprove']);
 // lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng phục vụ search trong approve
 Route::post('approveGiaVt/{idUserApprove}/{agreeOverride}', [material_cost_for_guestController::class, 'approve']);
+// api sử lý cho like
+Route::post('handleLike', [material_cost_for_guestController::class, 'handleLike']);
+
+
 
 //=======================================\\//==========================================================//
 

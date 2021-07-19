@@ -37,6 +37,7 @@ class giaVatTuController extends Controller
     {
         $material_cost = new material_cost();
         $user = User::find($idUserImport);
+        
         if ($user->can('create-gia-vat-tu')) {
             $user = User::find($idUserImport);
             $arrTemp = [];
