@@ -279,10 +279,12 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    $itemUpdate = DB::table('user_buy_material_costs')
-    ->where('id', 1)
-    ->first();
-    $getNameTinh = DB::table('province_cities')->where('symbol_province', 'BĐ')->first();
-    return $itemUpdate->describe_cost;
+    DB::table('user_buy_material_costs')
+                    ->insert([
+                        'describe_cost' => 'strKvTd',
+                        'id_user_post' => 'idUserView',
+                        'tinh' => 'tinh',
+                        'id_user_buy' => 'user_id',
+                    ]);
     }
 }

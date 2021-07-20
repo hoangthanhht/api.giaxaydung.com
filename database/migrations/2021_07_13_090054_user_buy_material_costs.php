@@ -15,8 +15,8 @@ class UserBuyMaterialCosts extends Migration
     {
         Schema::create('user_buy_material_costs', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_user_buy')->unsigned();
-            $table->integer('id_user_post')->unsigned();
+            $table->longText('id_user_buy')->nullable();
+            $table->longText('id_user_post')->nullable();
             $table->longText('describe_cost')->nullable();
             $table->longText('tinh')->nullable();
             $table->timestamps();

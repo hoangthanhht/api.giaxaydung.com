@@ -308,6 +308,7 @@ class giaVatTuController extends Controller
                     // //giaVatTu::updated($arrUpdate);
                     material_cost::insert($arrTemp); // phải dùng cách này: lặp và đẩy dữ liệu cần tọa vào 1 mảng trung gian sau đó mới ghi vào db
                     // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
+                    // dung eloquen khi dung voi insert thi khong chen dc ngay vao create_at.phai dung ham create thi moi tao dc create_at
                     $arrTemp = [];
                     $arrUpdate = [];
                     DB::commit();

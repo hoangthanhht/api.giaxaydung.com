@@ -69,7 +69,7 @@ Route::post('getUserUpBaoGia', [material_cost_for_guestController::class, 'getUs
 // lấy tỉnh mà 1 người đã up giá
 Route::post('getInfoTinhBaoGiaOfUser', [material_cost_for_guestController::class, 'getInfoTinhBaoGiaOfUser']);
 // lấy dữ liệu về cảu 1 người up và của 1 địa phương
-Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}/{check}/{user_id_view}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
+Route::get('viewBaoGiaWithSelecttion/{user_id}/{tinh}/{khuvuc}/{thoidiem}/{check}/{user_id_view}/{agreebuy}', [material_cost_for_guestController::class, 'viewBaoGiaWithSelecttion']);
 // tạm thời khongodungf route này
 Route::get('getDataTableGiaVTGuest', [material_cost_for_guestController::class, 'getDataTableGiaVTGuest']);
 // lấy những thông tin còn lại theo sự lựa chọn thành phố và người đăng
@@ -82,8 +82,10 @@ Route::post('baoGiaWithSelecttionForSearchApprove', [material_cost_for_guestCont
 Route::post('approveGiaVt/{idUserApprove}/{agreeOverride}', [material_cost_for_guestController::class, 'approve']);
 // api sử lý cho like
 Route::post('handleLike', [material_cost_for_guestController::class, 'handleLike']);
-
-
+// api sử lý xoa bao gia cua nguoi approve bao gia
+Route::post('deleteBaoGia', [material_cost_for_guestController::class, 'deleteBaoGia']);
+// lấy những thông tin thoi diem theo sự lựa chọn thành phố và người đăng
+Route::post('getThoiDiemBaoGiaOfUser', [material_cost_for_guestController::class, 'getThoiDiemBaoGiaOfUser']);
 
 //=======================================\\//==========================================================//
 

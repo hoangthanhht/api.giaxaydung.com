@@ -457,7 +457,100 @@ class material_cost_for_guestController extends Controller
                 'khuvuc' => $arrKhuVuc], 200);
         }
     }
-    public function viewBaoGiaWithSelecttion($user_id, $tinh, $khuvuc, $thoidiem, $check, $idUserView)
+
+    public function getThoiDiemBaoGiaOfUser(Request $request)
+    {
+        if ($request->check === 0) {
+            $arrKhuVuc = [];
+            $arrThoiDiem = [];
+            $arrKhuVucAndThoiDiem = []; // mảng chứa những bản ghi của tỉnh mà có giá vạt tư khác nhau về khu vực và thời điểm thôi
+
+            // ($getTinh as $itemTinh) {
+            $getRecordOfTinh = DB::table('material_cost_for_guests')
+                ->where('tinh', $request->tinh)
+                ->where('user_id', $request->idUserImport)
+                ->get();
+            $getTemp = DB::table('material_cost_for_guests')
+                ->where('tinh', $request->tinh)
+                ->where('user_id', $request->idUserImport)
+                ->first();
+            $countString = substr_count($getTemp->giaVatTu, ';');
+            array_push($arrKhuVucAndThoiDiem, $getTemp->giaVatTu);
+            foreach ($getRecordOfTinh as $item) {
+                $countStrItem = substr_count($item->giaVatTu, ';');
+                if ($countString !== $countStrItem) {
+                    array_push($arrKhuVucAndThoiDiem, $item->giaVatTu);
+                }
+            }
+
+            //}
+
+            foreach ($arrKhuVucAndThoiDiem as $itemKvTd) {
+                $arrTempString = explode(';', $itemKvTd);
+                foreach ($arrTempString as $itemArr) {
+                    $posKV = strpos($itemArr, $request->khuvuc); // tách giá đến vị trí :
+                    if($posKV !==false) {
+                        $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
+                        $str1 = substr($itemArr, 0, $pos);
+                        $arrTempKvTd = explode(',', $str1);
+                        array_push($arrThoiDiem, ['value' => $arrTempKvTd[0], 'text' => $arrTempKvTd[0]]);
+
+                    }
+
+                }
+            }
+            $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
+            return response()->json([
+                'thoidiem' => $arrThoiDiem
+                ], 200);
+        } else {
+            $arrKhuVuc = [];
+            $arrThoiDiem = [];
+            $arrKhuVucAndThoiDiem = []; // mảng chứa những bản ghi của tỉnh mà có giá vạt tư khác nhau về khu vực và thời điểm thôi
+
+            // ($getTinh as $itemTinh) {
+            $getRecordOfTinh = DB::table('material_costs')
+                ->where('tinh', $request->tinh)
+                ->where('user_id', $request->idUserImport)
+                ->get();
+            $getTemp = DB::table('material_costs')
+                ->where('tinh', $request->tinh)
+                ->where('user_id', $request->idUserImport)
+                ->first();
+            $countString = substr_count($getTemp->giaVatTu, ';');
+            array_push($arrKhuVucAndThoiDiem, $getTemp->giaVatTu);
+            foreach ($getRecordOfTinh as $item) {
+                $countStrItem = substr_count($item->giaVatTu, ';');
+                if ($countString !== $countStrItem) {
+                    array_push($arrKhuVucAndThoiDiem, $item->giaVatTu);
+                }
+            }
+
+            //}
+
+            foreach ($arrKhuVucAndThoiDiem as $itemKvTd) {
+                $arrTempString = explode(';', $itemKvTd);
+                foreach ($arrTempString as $itemArr) {
+                    $posKV = strpos($itemArr, $request->khuvuc); // tách giá đến vị trí :
+                    if($posKV !==false) {
+                        $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
+                        $str1 = substr($itemArr, 0, $pos);
+                        $arrTempKvTd = explode(',', $str1);
+                        array_push($arrThoiDiem, ['value' => $arrTempKvTd[0], 'text' => $arrTempKvTd[0]]);
+
+                    }
+
+                }
+            }
+            $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
+            $arrKhuVuc = array_unique($arrKhuVuc, SORT_REGULAR);
+            return response()->json([
+                'thoidiem' => $arrThoiDiem], 200);
+        }
+    }
+
+
+    public function viewBaoGiaWithSelecttion($user_id, $tinh, $khuvuc, $thoidiem, $check, $idUserView,$agreebuy)
     {
         if ($check === '0') {
 
@@ -572,7 +665,177 @@ class material_cost_for_guestController extends Controller
             $pages = $collection->paginate(20);
             return $pages;
             //return response()->json($arrRecordBG,200);
-        } else {
+        } else if ($check === '1') {
+            $markRs = '';
+            $voteRs = '';
+            if ($agreebuy === "0") {
+                $get = DB::table('user_buy_material_costs')
+                ->where('id_user_post', $user_id)
+                ->where('tinh', $tinh)
+                ->first();
+                $strKvTd = $thoidiem . ',' . $khuvuc;
+                $isBuy = false;
+                $isVote = false;
+                if ($get) {
+                    $strIdUserBought = $get->id_user_bought;
+                    $pos = strpos($strIdUserBought, $strKvTd.':'.$idUserView);
+                    if ($pos !== false) {//da mua
+                        $isBuy = true;
+                    }else  { //chua mua
+                        $isBuy = false;
+                    }
+
+                    $strIdUserVote = $get->describe_cost;
+                    $pos = strpos($strIdUserVote, $strKvTd.':'.$idUserView);
+                    if ($pos !== false) {//da mua
+                        $isVote = true;
+                    }else  { //chua mua
+                        $isVote = false;
+                    }
+                }
+                $user = User::find($idUserView);
+                $getBaoGia = DB::table('material_costs')->where('user_id', $user_id)
+                    ->where('tinh', $tinh)
+                    ->get();
+                $arrRecordBG = [];
+                $gia = '';
+                
+                $check = false;
+                foreach ($getBaoGia as $item) {
+                    $giaVatTu = $item->giaVatTu;
+                    $vote_mark = $item->vote_mark;
+                    $pos = strpos($giaVatTu, $strKvTd);
+    
+                    if ($pos !== false) { //tim thay gia im port trong gia da co
+                        $arrgiaVatTu = explode(';', $giaVatTu);
+                        for ($key = 0; $key < count($arrgiaVatTu); $key++) {
+                            if (strpos($arrgiaVatTu[$key], $strKvTd) !== false) {
+                                $gia = str_replace($strKvTd . ':', '', $arrgiaVatTu[$key]);
+                                break;
+                            }
+                        }
+                        if ($check === false) {// lay ra so diem cua bao gia
+                            $arrmark = explode(';', $vote_mark);
+                            for ($key = 0; $key < count($arrmark); $key++) {
+                                if (strpos($arrmark[$key], $strKvTd) !== false) {
+                                    $mark = str_replace($strKvTd . ',vote:', '', $arrmark[$key]);
+                                    $pos = strpos($mark, ':'); // tách giá đến vị trí :
+                                    $markRs = substr($mark, $pos + 1, strlen($mark) - $pos);
+                                    $pos = strpos($mark, '|'); // tách giá đến vị trí :
+                                    $voteRs = substr($mark, 0, $pos);
+                                    $check = true;
+                                    break;
+                                }
+                            }
+    
+                        }
+    
+                        $getNameTinh = DB::table('province_cities')->where('symbol_province', $item->tinh)->first();
+                        array_push($arrRecordBG, [
+                            'id' => $item->id,
+                            'maVatTu' => $item->maVatTu,
+                            'tenVatTu' => $item->tenVatTu,
+                            'donVi' => $item->donVi,
+                            'nguon' => $item->nguon,
+                            'ghiChu' => $item->ghiChu,
+                            'tinh' => $getNameTinh->name_province,
+                            'tacGia' => $item->tacGia,
+                            'giaVatTu' => $gia,
+                            'khuVuc' => $khuvuc,
+                            'thoiDiem' => $thoidiem,
+                        ]);
+                    }
+                }
+    
+                $collection = collect($arrRecordBG);
+                //return $this->paginateCollection($collection,2);
+                $pages = $collection->paginate(20);
+                return response()->json(['pagi' => $pages,
+                    'markuserview' => $user->total_mark,
+                    'isbuy' => $isBuy,
+                    'isvote' => $isVote,
+                    'votecur' => $voteRs,
+                    'mark' => $markRs], 200);
+                //return response()->json($arrRecordBG,200);
+            }else{
+                // DANH DAU LA DA MUA BAO GIA NAY
+                $get = DB::table('user_buy_material_costs')
+                ->where('id_user_post', $user_id)
+                ->where('tinh', $tinh)
+                ->first();
+                $strKvTd = $thoidiem . ',' . $khuvuc;
+                if($get){
+
+                    $strIdUserBought = $get->id_user_bought;
+                    if($strIdUserBought){
+                        $strIdUserBoughtUpdate = $strIdUserBought.';'.$strKvTd.':'.$idUserView;
+                    }else{
+                        $strIdUserBoughtUpdate = $idUserView;
+                    }
+                    DB::table('user_buy_material_costs')
+                        ->where('id_user_post', $user_id)
+                        ->where('tinh', $tinh)
+                        ->update([
+                            'id_user_bought' => $strIdUserBoughtUpdate,
+                            
+                        ]);
+                }else {
+                    DB::table('user_buy_material_costs')
+                    ->insert([
+                        'id_user_buy'=>null,
+                        'id_user_post' => $idUserView,
+                        'tinh' => $tinh,
+                        'id_user_bought' => $strKvTd.':'.$user_id,
+                    ]);
+                }
+//====== TRU DIEM NGUOI MUA CONG DIEM CHO NGUOI BAN========//
+                $getBaoGia = DB::table('material_costs')->where('user_id', $user_id)
+                ->where('tinh', $tinh)
+                ->get();
+                $arrRecordBG = [];
+                $gia = '';
+                
+                $check = false;
+                foreach ($getBaoGia as $item) {
+                    $giaVatTu = $item->giaVatTu;
+                    $vote_mark = $item->vote_mark;
+                    $pos = strpos($giaVatTu, $strKvTd);
+    
+                    if ($pos !== false) { //tim thay gia im port trong gia da co
+                       
+                        if ($check === false) {// lay ra so diem cua bao gia
+                            $arrmark = explode(';', $vote_mark);
+                            for ($key = 0; $key < count($arrmark); $key++) {
+                                if (strpos($arrmark[$key], $strKvTd) !== false) {
+                                    $mark = str_replace($strKvTd . ',vote:', '', $arrmark[$key]);
+                                    $pos = strpos($mark, ':'); // tách giá đến vị trí :
+                                    $markRs = substr($mark, $pos + 1, strlen($mark) - $pos);
+                                    $check = true;
+                                    break;
+                                }
+                            }
+    
+                        }
+                    }
+                    if($check === true) {
+                        break;
+                    }
+                }
+                $userSale = User::find($user_id);
+                $totalMarkUpdate = $userSale->total_mark + (int)$markRs;
+                $userSale->total_mark = $totalMarkUpdate;
+                $userSale->save();
+
+
+                $userBuy = User::find($idUserView);
+                $totalMarkUpdate = $userBuy->total_mark - (int)$markRs;
+                $userBuy->total_mark = $totalMarkUpdate;
+                $userBuy->save();
+
+                return response()->json([
+                'mark' => $totalMarkUpdate], 200);
+            }
+        } else if($check === '3') {// truong hop nay danh cho khi click vao phan trang
             $user = User::find($idUserView);
             $getBaoGia = DB::table('material_costs')->where('user_id', $user_id)
                 ->where('tinh', $tinh)
@@ -580,7 +843,6 @@ class material_cost_for_guestController extends Controller
             $arrRecordBG = [];
             $gia = '';
             $strKvTd = $thoidiem . ',' . $khuvuc;
-            $markRs = '';
             $check = false;
             foreach ($getBaoGia as $item) {
                 $giaVatTu = $item->giaVatTu;
@@ -595,13 +857,15 @@ class material_cost_for_guestController extends Controller
                             break;
                         }
                     }
-                    if ($check === false) {
+                    if ($check === false) {// lay ra so diem cua bao gia
                         $arrmark = explode(';', $vote_mark);
                         for ($key = 0; $key < count($arrmark); $key++) {
                             if (strpos($arrmark[$key], $strKvTd) !== false) {
                                 $mark = str_replace($strKvTd . ',vote:', '', $arrmark[$key]);
                                 $pos = strpos($mark, ':'); // tách giá đến vị trí :
                                 $markRs = substr($mark, $pos + 1, strlen($mark) - $pos);
+                                $pos = strpos($mark, '|'); // tách giá đến vị trí :
+                                $voteRs = substr($mark, 0, $pos);
                                 $check = true;
                                 break;
                             }
@@ -630,8 +894,9 @@ class material_cost_for_guestController extends Controller
             //return $this->paginateCollection($collection,2);
             $pages = $collection->paginate(20);
             return response()->json(['pagi' => $pages,
-                                     'markuserview' => $user->total_mark,
-                                     'mark'=>$markRs], 200);
+                'markuserview' => $user->total_mark,
+                'votecur' => $voteRs,
+                'mark' => $markRs], 200);
             //return response()->json($arrRecordBG,200);
         }
 
@@ -1025,10 +1290,32 @@ class material_cost_for_guestController extends Controller
                             }
                         }
 
-                        DB::table('material_cost_for_guests')
+                        $getRecoreDel = DB::table('material_cost_for_guests')
                             ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
                             ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
-                            ->delete();
+                            ->get();
+                            foreach ($getRecoreDel as $getItem) {
+                                // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+                                    $giaDaCo = $getItem->giaVatTu;
+                                    $arrgiaDaCo = explode(';', $giaDaCo);
+                                    for ($key = 0; $key < count($arrgiaDaCo); $key++) {
+                                        if (strpos($arrgiaDaCo[$key], $request->giaVt) !== false) {
+                                            unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
+                                            break;
+                                        }
+                                    }
+                                    if(count($arrgiaDaCo) == 0) {
+                                        DB::table('material_cost_for_guests')
+                                        ->where('id', $getItem->id)
+                                        ->delete();
+                                    }else if(count($arrgiaDaCo) > 0) {
+                                        $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+                                        DB::table('material_cost_for_guests')
+                                        ->where('id', $getItem->id)
+                                        ->update(['giaVatTu'=> $giaDaCoUpdate]);
+
+                                    }
+                            }
                         DB::commit();
                         return response()->json([
                             'code' => 200,
@@ -1046,10 +1333,32 @@ class material_cost_for_guestController extends Controller
                     // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
                     $arrTemp = [];
                     $arrUpdate = [];
-                    DB::table('material_cost_for_guests')
-                        ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
-                        ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
-                        ->delete();
+                    $getRecoreDel = DB::table('material_cost_for_guests')
+                    ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
+                    ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
+                    ->get();
+                    foreach ($getRecoreDel as $getItem) {
+                        // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+                            $giaDaCo = $getItem->giaVatTu;
+                            $arrgiaDaCo = explode(';', $giaDaCo);
+                            for ($key = 0; $key < count($arrgiaDaCo); $key++) {
+                                if (strpos($arrgiaDaCo[$key], $request->giaVt) !== false) {
+                                    unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
+                                    break;
+                                }
+                            }
+                            if(count($arrgiaDaCo) == 0) {
+                                DB::table('material_cost_for_guests')
+                                ->where('id', $getItem->id)
+                                ->delete();
+                            }else if(count($arrgiaDaCo) > 0) {
+                                $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+                                DB::table('material_cost_for_guests')
+                                ->where('id', $getItem->id)
+                                ->update(['giaVatTu'=> $giaDaCoUpdate]);
+
+                            }
+                    }
                     DB::commit();
                     return response()->json([
                         'code' => 200,
@@ -1071,61 +1380,134 @@ class material_cost_for_guestController extends Controller
         }
     }
 
+    public function deleteBaoGia(Request $request) {
+        $getRecoreDel = DB::table('material_cost_for_guests')
+        ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
+        ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
+        ->get();
+        foreach ($getRecoreDel as $getItem) {
+            // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+                $giaDaCo = $getItem->giaVatTu;
+                $arrgiaDaCo = explode(';', $giaDaCo);
+                for ($key = 0; $key < count($arrgiaDaCo); $key++) {
+                    if (strpos($arrgiaDaCo[$key], $request->giaVt) !== false) {
+                        unset($arrgiaDaCo[$key]); //xoa bo phan tu trong mang
+                        break;
+                    }
+                }
+                if(count($arrgiaDaCo) == 0) {
+                    DB::table('material_cost_for_guests')
+                    ->where('id', $getItem->id)
+                    ->delete();
+                }else if(count($arrgiaDaCo) > 0) {
+                    $giaDaCoUpdate = implode(';', $arrgiaDaCo);
+                    DB::table('material_cost_for_guests')
+                    ->where('id', $getItem->id)
+                    ->update(['giaVatTu'=> $giaDaCoUpdate]);
+
+                }
+        }
+    } 
+
     public function handleLike(Request $request)
     {
         $get = DB::table('user_buy_material_costs')
-        ->where('id_user_post', $request->user_id)
-        ->where('tinh', $request->tinh)
-        ->get();
+            ->where('id_user_post', $request->user_id)
+            ->where('tinh', $request->tinh)
+            ->get();
         $strKvTd = $request->thoidiem . ',' . $request->khuvuc;
         if ($get->isEmpty()) {
             DB::table('user_buy_material_costs')
-            ->insert([
-                ['id_user_buy' => $request->idUserView,
-                 'id_user_post' => $request->user_id, 
-                 'tinh' => $request->tinh, 
-                 'describe_cost' => $strKvTd ],
-                
-            ]);
-        }else {
+                ->insert([
+                    'id_user_buy' => $request->idUserView,
+                        'id_user_post' => $request->user_id,
+                        'tinh' => $request->tinh,
+                        'describe_cost' => $strKvTd.':'.$request->idUserView,
+                    
+
+                ]);
+                $strUserBuy = $request->idUserView;
+                $intVote = 0;
+                $getUpdate = DB::table('material_costs')
+                    ->where('tinh', $request->tinh)
+                    ->where('user_id', $request->user_id)
+                    ->get();
+
+                foreach ($getUpdate as $getItem) {
+                    $voteDaCo = $getItem->vote_mark;
+
+                    $pos1 = strpos($voteDaCo, $strKvTd); // chưa vị trí tìm đc trong gia đã có
+                    if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+
+                        $arrvoteDaCo = explode(';', $voteDaCo);
+                        for ($key = 0; $key < count($arrvoteDaCo); $key++) {
+                            if (strpos($arrvoteDaCo[$key], $strKvTd) !== false) {
+                                $vote = str_replace($strKvTd . ',vote:', '', $arrvoteDaCo[$key]);
+                                $pos = strpos($vote, '|'); // tách giá đến vị trí :
+                                $mark = substr($vote, $pos + 1, strlen($vote) - $pos);
+                                $voteRs = substr($vote, 0, $pos);
+                                $intVote = (int) $voteRs + 1;
+                                $arrvoteDaCo[$key] = $strKvTd . ',vote:' . $intVote .'|'. $mark;
+                                break;
+                            }
+                        }
+                        $voteDaCoUpdate = implode(';', $arrvoteDaCo);
+                        DB::table('material_costs')
+                            ->where('id', $getItem->id)
+                            ->update([
+                                'vote_mark' => $voteDaCoUpdate,
+                            ]);
+
+                    }
+                }
+                return $intVote;
+        } 
+        else {
             $itemUpdate = DB::table('user_buy_material_costs')
-            ->where('id_user_post', $request->user_id)
-            ->where('tinh', $request->tinh)
-            ->first();
+                ->where('id_user_post', $request->user_id)
+                ->where('tinh', $request->tinh)
+                ->first();
             $strUserBuy = $itemUpdate->id_user_buy;
             $strdescribeCost = $itemUpdate->describe_cost;
-            $pos = strpos($strUserBuy,(string)$request->idUserView ); // chưa vị trí tìm đc trong gia đã có
-            $pos1 = strpos($strdescribeCost,$strKvTd ); // chưa vị trí tìm đc trong gia đã có
-            if ($pos !== false && $pos1 !== false) {// người mua đã vote cho bao giá
-               $arrStrUserBuy = explode(',', $strUserBuy);
-               for ($key = 0; $key < count($arrStrUserBuy); $key++) {
-                if ($arrStrUserBuy[$key] === $request->idUserView) {
-                    unset($arrStrUserBuy[$key]); //xoa bo phan tu trong mang
-                    break;
+            $pos = strpos($strUserBuy, (string) $request->idUserView); // chưa vị trí tìm đc trong gia đã có
+            $pos1 = strpos($strdescribeCost, $strKvTd.':'.$request->idUserView); // chưa vị trí tìm đc trong gia đã có
+            $intVote = 0;
+            if ($pos !== false && $pos1 !== false) { // người mua đã vote cho bao giá
+                $arrStrUserBuy = explode(',', $strUserBuy);
+                for ($key = 0; $key < count($arrStrUserBuy); $key++) {
+                    if ($arrStrUserBuy[$key] == $request->idUserView) {
+                        unset($arrStrUserBuy[$key]); //xoa bo phan tu trong mang
+                        break;
+                    }
                 }
-               }
                 $newStrUserBuy = implode(',', $arrStrUserBuy);
-            $a = ($request->user_id);
 
+                $arrstrdescribeCost = explode(';', $strdescribeCost);
+                for ($key = 0; $key < count($arrstrdescribeCost); $key++) {
+                    if ($arrstrdescribeCost[$key] == $strKvTd.':'.$request->idUserView) {
+                        unset($arrstrdescribeCost[$key]); //xoa bo phan tu trong mang
+                        break;
+                    }
+                }
+                $newstrdescribeCost = implode(';', $arrstrdescribeCost);
                 DB::table('user_buy_material_costs')
-                ->where('id_user_post', $request->user_id)
-                ->where('tinh', $request->tinh)
-                ->update([
-                    'id_user_buy' => $newStrUserBuy,
-                     
-                    
-                ]);
+                    ->where('id_user_post', $request->user_id)
+                    ->where('tinh', $request->tinh)
+                    ->update([
+                        'id_user_buy' => $newStrUserBuy,
+                        'describe_cost' => $newstrdescribeCost,
+                    ]);
                 $getUpdate = DB::table('material_costs')
-                ->where('tinh', $request->tinh)
-                ->where('user_id', $request->user_id)
-                ->get();
+                    ->where('tinh', $request->tinh)
+                    ->where('user_id', $request->user_id)
+                    ->get();
 
                 foreach ($getUpdate as $getItem) {
                     $voteDaCo = $getItem->vote_mark;
-                   
-                    $pos1 = strpos($voteDaCo, $strKvTd ); // chưa vị trí tìm đc trong gia đã có
+
+                    $pos1 = strpos($voteDaCo, $strKvTd); // chưa vị trí tìm đc trong gia đã có
                     if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
-                        
+
                         $arrvoteDaCo = explode(';', $voteDaCo);
                         for ($key = 0; $key < count($arrvoteDaCo); $key++) {
                             if (strpos($arrvoteDaCo[$key], $strKvTd) !== false) {
@@ -1133,8 +1515,8 @@ class material_cost_for_guestController extends Controller
                                 $pos = strpos($vote, '|'); // tách giá đến vị trí :
                                 $mark = substr($vote, $pos + 1, strlen($vote) - $pos);
                                 $voteRs = substr($vote, 0, $pos);
-                                $intVote = (int)$voteRs - 1;
-                                $arrvoteDaCo[$key] =$strKvTd.',vote:'.$intVote.$mark;
+                                $intVote = (int) $voteRs - 1;
+                                $arrvoteDaCo[$key] = $strKvTd . ',vote:' . $intVote . '|' . $mark;
                                 break;
                             }
                         }
@@ -1147,29 +1529,38 @@ class material_cost_for_guestController extends Controller
 
                     }
                 }
+                return $intVote;
             }
-            if($pos === false && $pos1 !== false) { // chưa like
-                $newStrUserBuy = $strUserBuy.','.$request->idUserView;
-                 
+            if ($pos === false && $pos1 !== false) { // chưa like
+                if($strUserBuy){
+                    $newStrUserBuy = $strUserBuy . ',' . $request->idUserView;
+                }else {
+                    $newStrUserBuy = $request->idUserView;
+                }
+                if($strdescribeCost){
+                    $newstrdescribeCost = $strdescribeCost . ';' . $strKvTd.':'.$request->idUserView;
+                }else {
+                    $newstrdescribeCost = $strKvTd.':'.$request->idUserView;
+                }
+                $intVote = 0;
                 DB::table('user_buy_material_costs')
-                ->where('id_user_post', $request->user_id)
-                ->where('tinh', $request->tinh)
-                ->update([
-                    'id_user_buy' => $newStrUserBuy,
-                     
-                    
-                ]);
+                    ->where('id_user_post', $request->user_id)
+                    ->where('tinh', $request->tinh)
+                    ->update([
+                        'id_user_buy' => $newStrUserBuy,
+                        'describe_cost' => $newstrdescribeCost,
+                    ]);
                 $getUpdate = DB::table('material_costs')
-                ->where('tinh', $request->tinh)
-                ->where('user_id', $request->user_id)
-                ->get();
+                    ->where('tinh', $request->tinh)
+                    ->where('user_id', $request->user_id)
+                    ->get();
 
                 foreach ($getUpdate as $getItem) {
                     $voteDaCo = $getItem->vote_mark;
-                   
-                    $pos1 = strpos($voteDaCo, $strKvTd ); // chưa vị trí tìm đc trong gia đã có
+
+                    $pos1 = strpos($voteDaCo, $strKvTd); // chưa vị trí tìm đc trong gia đã có
                     if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
-                        
+
                         $arrvoteDaCo = explode(';', $voteDaCo);
                         for ($key = 0; $key < count($arrvoteDaCo); $key++) {
                             if (strpos($arrvoteDaCo[$key], $strKvTd) !== false) {
@@ -1177,8 +1568,8 @@ class material_cost_for_guestController extends Controller
                                 $pos = strpos($vote, '|'); // tách giá đến vị trí :
                                 $mark = substr($vote, $pos + 1, strlen($vote) - $pos);
                                 $voteRs = substr($vote, 0, $pos);
-                                $intVote = (int)$voteRs + 1;
-                                $arrvoteDaCo[$key] = $strKvTd.',vote:'.$intVote.$mark;
+                                $intVote = (int) $voteRs + 1;
+                                $arrvoteDaCo[$key] = $strKvTd . ',vote:' . $intVote .'|'. $mark;
                                 break;
                             }
                         }
@@ -1191,52 +1582,64 @@ class material_cost_for_guestController extends Controller
 
                     }
                 }
-           }
-           if($pos === false && $pos1 === false) { // chưa like và cũng chưa có khu vực 
-            $newStrUserBuy = $strUserBuy.','.$request->idUserView;
-            $newStrdescribeCost = $strdescribeCost.';'.$strKvTd;
-            DB::table('user_buy_material_costs')
-            ->where('id_user_post', $request->user_id)
-            ->where('tinh', $request->tinh)
-            ->update([
-                'id_user_buy' => $newStrUserBuy,
-                'describe_cost' => $newStrdescribeCost,
-                 
-                
-            ]);
-            $getUpdate = DB::table('material_costs')
-            ->where('tinh', $request->tinh)
-            ->where('user_id', $request->user_id)
-            ->get();
-
-            foreach ($getUpdate as $getItem) {
-                $voteDaCo = $getItem->vote_mark;
-               
-                $pos1 = strpos($voteDaCo, $strKvTd ); // chưa vị trí tìm đc trong gia đã có
-                if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
-                    
-                    $arrvoteDaCo = explode(';', $voteDaCo);
-                    for ($key = 0; $key < count($arrvoteDaCo); $key++) {
-                        if (strpos($arrvoteDaCo[$key], $strKvTd) !== false) {
-                            $vote = str_replace($strKvTd . ',vote:', '', $arrvoteDaCo[$key]);
-                            $pos = strpos($vote, '|'); // tách giá đến vị trí :
-                            $mark = substr($vote, $pos + 1, strlen($vote) - $pos);
-                            $voteRs = substr($vote, 0, $pos);
-                            $intVote = (int)$voteRs + 1;
-                            $arrvoteDaCo[$key] = $strKvTd.',vote:'.$intVote.$mark;
-                            break;
-                        }
-                    }
-                    $voteDaCoUpdate = implode(';', $arrvoteDaCo);
-                    DB::table('material_costs')
-                        ->where('id', $getItem->id)
-                        ->update([
-                            'vote_mark' => $voteDaCoUpdate,
-                        ]);
-
-                }
+                return $intVote;
             }
-           }
+            if ($pos === false && $pos1 === false) { // chưa like và cũng chưa có khu vực
+                if($strUserBuy) {
+
+                    $newStrUserBuy = $strUserBuy . ',' . $request->idUserView;
+                }else {
+                   $newStrUserBuy = $request->idUserView;
+                }
+                if($strdescribeCost){
+
+                    $newStrdescribeCost = $strdescribeCost . ';' . $strKvTd.':'.$request->idUserView;
+                }else {
+                    $newStrdescribeCost = $strKvTd.':'.$request->idUserView;
+                }
+                $intVote = 0;
+                DB::table('user_buy_material_costs')
+                    ->where('id_user_post', $request->user_id)
+                    ->where('tinh', $request->tinh)
+                    ->update([
+                        'id_user_buy' => $newStrUserBuy,
+                        'describe_cost' => $newStrdescribeCost,
+
+                    ]);
+                $getUpdate = DB::table('material_costs')
+                    ->where('tinh', $request->tinh)
+                    ->where('user_id', $request->user_id)
+                    ->get();
+
+                foreach ($getUpdate as $getItem) {
+                    $voteDaCo = $getItem->vote_mark;
+
+                    $pos1 = strpos($voteDaCo, $strKvTd); // chưa vị trí tìm đc trong gia đã có
+                    if ($pos1 !== false) { // đã tồn tại giá (nguoi dùng chọn nhầm giá va fkhu vực đã có)
+
+                        $arrvoteDaCo = explode(';', $voteDaCo);
+                        for ($key = 0; $key < count($arrvoteDaCo); $key++) {
+                            if (strpos($arrvoteDaCo[$key], $strKvTd) !== false) {
+                                $vote = str_replace($strKvTd . ',vote:', '', $arrvoteDaCo[$key]);
+                                $pos = strpos($vote, '|'); // tách giá đến vị trí :
+                                $mark = substr($vote, $pos + 1, strlen($vote) - $pos);
+                                $voteRs = substr($vote, 0, $pos);
+                                $intVote = (int) $voteRs + 1;
+                                $arrvoteDaCo[$key] = $strKvTd . ',vote:' . $intVote .'|'. $mark;
+                                break;
+                            }
+                        }
+                        $voteDaCoUpdate = implode(';', $arrvoteDaCo);
+                        DB::table('material_costs')
+                            ->where('id', $getItem->id)
+                            ->update([
+                                'vote_mark' => $voteDaCoUpdate,
+                            ]);
+
+                    }
+                }
+                return $intVote;
+            }
         }
     }
 }
