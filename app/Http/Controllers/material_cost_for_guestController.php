@@ -404,7 +404,6 @@ class material_cost_for_guestController extends Controller
                     $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
                     $str1 = substr($itemArr, 0, $pos);
                     $arrTempKvTd = explode(',', $str1);
-                    array_push($arrThoiDiem, ['value' => $arrTempKvTd[0], 'text' => $arrTempKvTd[0]]);
                     array_push($arrKhuVuc, ['value' => $arrTempKvTd[1], 'text' => $arrTempKvTd[1]]);
 
                 }
@@ -445,7 +444,6 @@ class material_cost_for_guestController extends Controller
                     $pos = strpos($itemArr, ':'); // tách giá đến vị trí :
                     $str1 = substr($itemArr, 0, $pos);
                     $arrTempKvTd = explode(',', $str1);
-                    array_push($arrThoiDiem, ['value' => $arrTempKvTd[0], 'text' => $arrTempKvTd[0]]);
                     array_push($arrKhuVuc, ['value' => $arrTempKvTd[1], 'text' => $arrTempKvTd[1]]);
 
                 }
@@ -453,7 +451,6 @@ class material_cost_for_guestController extends Controller
             $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
             $arrKhuVuc = array_unique($arrKhuVuc, SORT_REGULAR);
             return response()->json([
-                'thoidiem' => $arrThoiDiem,
                 'khuvuc' => $arrKhuVuc], 200);
         }
     }
