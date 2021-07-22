@@ -279,12 +279,12 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    DB::table('user_buy_material_costs')
-                    ->insert([
-                        'describe_cost' => 'strKvTd',
-                        'id_user_post' => 'idUserView',
-                        'tinh' => 'tinh',
-                        'id_user_buy' => 'user_id',
-                    ]);
+    $input_array = array('a', 'd', 'e');
+ 
+    foreach(array_chunk($input_array, 2) as $i){
+        dd($i);
+    }
+     
+    // Gom nhóm với mỗi nhóm là 2 phần tử
     }
 }

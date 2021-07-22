@@ -45,6 +45,7 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']
 Route::middleware('auth:api')->group(function () {
     Route::resource('post/bcday', ReportDayController::class);
 });
+//=======================================\\//================================//
 // trả đường dẫn theo mahcv trả về cho phàn mềm
 Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
 //lấy đường dân về từ trang qlda
@@ -59,6 +60,10 @@ Route::get('getAllDataTableDm', [linkQldaController::class, 'getAllDataTableDm']
 Route::post('updateDataDm/{id}/{iduser}', [linkQldaController::class, 'updateDataDm']);
 // trả ghi chú đinh mức cho phần mềm
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
+//api đê dưa mã công việc(mã con) vào dữ liệu 
+Route::post('CreateDinhMucFromFile/{iduser}', [linkQldaController::class, 'CreateDinhMuc']);
+
+//====================================\\//====================================//
 // đưa dữ liệu từ bảng excel vào data base
 Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
 /* PHẦN UP GIÁ CỦA NGƯỜI DÙNG VÀ APPROVE CỦA QUẢN TRỊ */
@@ -145,4 +150,4 @@ Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
 
-Route::get('test', [PassportAuthController::class, 'test']);
+Route::get('test', [linkQldaController::class, 'storeTableDM']);

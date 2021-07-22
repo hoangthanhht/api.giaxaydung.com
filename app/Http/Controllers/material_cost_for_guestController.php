@@ -590,7 +590,9 @@ class material_cost_for_guestController extends Controller
             $collection = collect($arrRecordBG);
             //return $this->paginateCollection($collection,2);
             $pages = $collection->paginate(20);
-            return $pages;
+            return response()->json(['pagi' => $pages,
+            'arrRs' => $arrRecordBG,
+            ], 200);
 
         } else if ($check === '2') { // lấy toàn bộ cac bản giá đã up của user hiện đang login trong bảng material_cost_for_guests
 
