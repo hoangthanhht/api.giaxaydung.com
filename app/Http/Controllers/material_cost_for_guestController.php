@@ -373,6 +373,7 @@ class material_cost_for_guestController extends Controller
 
     public function getInfoBaoGiaOfUser(Request $request)
     {
+            
         if ($request->check === 0) {
             $arrKhuVuc = [];
             $arrThoiDiem = [];
@@ -754,6 +755,7 @@ class material_cost_for_guestController extends Controller
                     'isbuy' => $isBuy,
                     'isvote' => $isVote,
                     'votecur' => $voteRs,
+                    'arrRs' => $arrRecordBG,
                     'mark' => $markRs], 200);
                 //return response()->json($arrRecordBG,200);
             }else{

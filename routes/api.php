@@ -54,14 +54,32 @@ Route::post('link', [linkQldaController::class, 'store']);
 Route::post('createTableLDm', [linkQldaController::class, 'storeTableDM']);
 //lây du liệu từ bảng để hiển thị ra view front end co pagination
 Route::get('getDataTableDm', [linkQldaController::class, 'getDataTableDM']);
+//lây du liệu từ bảng để hiển thị ra view front end co pagination
+Route::get('getDataTableDmContribute', [linkQldaController::class, 'getDataTableDmContribute']);
+
 //lây tat ca du liệu từ bảng để hiển thị ra view front end khong co pagination
 Route::get('getAllDataTableDm', [linkQldaController::class, 'getAllDataTableDm']);
+//lây tat ca du liệu từ bảng nguoi dung đóng góp để hiển thị ra view front end khong co pagination
+Route::get('getAllDataTableDmContribute', [linkQldaController::class, 'getAllDataTableDmContribute']);
+
 //api đẻ chỉnh sửa đinh mức
 Route::post('updateDataDm/{id}/{iduser}', [linkQldaController::class, 'updateDataDm']);
+//api đẻ chỉnh sửa đinh mức contribute
+Route::post('updateDataDmContribute/{id}/{iduser}', [linkQldaController::class, 'updateDataDmContribute']);
+//api đẻ chỉnh sửa đinh mức contribute
+Route::post('CreateDinhMucContribute', [linkQldaController::class, 'CreateDinhMucContribute']);
+
 // trả ghi chú đinh mức cho phần mềm
 Route::get('noteDm/{id}', [linkQldaController::class, 'getNoteDM']);
 //api đê dưa mã công việc(mã con) vào dữ liệu 
 Route::post('CreateDinhMucFromFile/{iduser}', [linkQldaController::class, 'CreateDinhMuc']);
+//api đê dưa mã công việc(mã con) vào dữ liệu 
+Route::post('handleDeleteNoteDmContribute/{iddm}', [linkQldaController::class, 'handleDeleteNoteDmContribute']);
+//api đê approve dinh muc
+Route::post('handleApproveContribute', [linkQldaController::class, 'handleApprove']);
+
+
+
 
 //====================================\\//====================================//
 // đưa dữ liệu từ bảng excel vào data base
@@ -150,4 +168,4 @@ Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
 
 
 
-Route::get('test', [linkQldaController::class, 'storeTableDM']);
+Route::get('test', [PassportAuthController::class, 'test']);

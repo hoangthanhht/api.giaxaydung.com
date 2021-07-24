@@ -39,6 +39,11 @@ class DatabaseSeeder extends Seeder
         $Users->name = 'User';
         $Users->save();
 
+        $UsersApprv = new Role();
+        $UsersApprv->slug = 'UserApprv';
+        $UsersApprv->name = 'UserApprv';
+        $UsersApprv->save();
+
         $guest = new Role();
         $guest->slug = 'Guest';
         $guest->name = 'Guest';
@@ -58,6 +63,16 @@ class DatabaseSeeder extends Seeder
         $deleteTasks = new Permission();
         $deleteTasks->slug = 'delete-gia-vat-tu';
         $deleteTasks->name = 'Delete Gia Vat tu';
+        $deleteTasks->save();
+
+        $deleteTasks = new Permission();
+        $deleteTasks->slug = 'approve-gia-vat-tu';
+        $deleteTasks->name = 'Approve Gia Vat tu';
+        $deleteTasks->save();
+
+        $deleteTasks = new Permission();
+        $deleteTasks->slug = 'approve-dinh-muc';
+        $deleteTasks->name = 'Approve dinh muc';
         $deleteTasks->save();
 
         $editTasks = new Permission();
