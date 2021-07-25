@@ -54,31 +54,45 @@ class DatabaseSeeder extends Seeder
         $createTasks->name = 'Create Gia Vat tu';
         $createTasks->save();
 
-        $createTasks = new Permission();
-        $createTasks->slug = 'edit-dinh-muc';
-        $createTasks->name = 'Edit Dinh Muc';
-        $createTasks->save();
-
-
         $deleteTasks = new Permission();
         $deleteTasks->slug = 'delete-gia-vat-tu';
         $deleteTasks->name = 'Delete Gia Vat tu';
         $deleteTasks->save();
+        
 
         $deleteTasks = new Permission();
         $deleteTasks->slug = 'approve-gia-vat-tu';
         $deleteTasks->name = 'Approve Gia Vat tu';
         $deleteTasks->save();
 
-        $deleteTasks = new Permission();
-        $deleteTasks->slug = 'approve-dinh-muc';
-        $deleteTasks->name = 'Approve dinh muc';
-        $deleteTasks->save();
 
         $editTasks = new Permission();
         $editTasks->slug = 'edit-gia-vat-tu';
         $editTasks->name = 'Edit Gia Vat tu';
         $editTasks->save();
+
+        $createTasks = new Permission();
+        $createTasks->slug = 'edit-dinh-muc';
+        $createTasks->name = 'Edit Dinh Muc';
+        $createTasks->save();
+
+
+        $createTasks = new Permission();
+        $createTasks->slug = 'create-dinh-muc';
+        $createTasks->name = 'Create Dinh Muc';
+        $createTasks->save();
+
+        $approveTasks = new Permission();
+        $approveTasks->slug = 'approve-dinh-muc';
+        $approveTasks->name = 'Approve dinh muc';
+        $approveTasks->save();
+
+        $deleteTasks = new Permission();
+        $deleteTasks->slug = 'delete-dinh-muc';
+        $deleteTasks->name = 'Delete dinh muc';
+        $deleteTasks->save();
+
+      
 
         $viewUsers = new Permission();
         $viewUsers->slug = 'view-users';

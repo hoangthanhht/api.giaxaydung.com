@@ -17,7 +17,6 @@ class material_cost_for_guestController extends Controller
     {
         $material_cost = new material_cost_for_guest();
         $user = User::find($idUserImport);
-        if ($user->can('create-gia-vat-tu')) {
             $user = User::find($idUserImport);
             $arrTemp = [];
             $arrUpdate = [];
@@ -301,12 +300,7 @@ class material_cost_for_guestController extends Controller
                 $response = $this->renderException($request, $exception);
 
             }
-        } else {
-            return response([
-                'success' => false,
-                'message' => 'Bạn không có quyền thực hiện tác vụ này',
-            ], 200);
-        }
+    
     }
     // hàm lấy ra thông tin của người đăng báo giá. thông tin về khu vực thời điểm....của báo giá
     public function getUserUpBaoGia(Request $request)
@@ -1016,7 +1010,7 @@ class material_cost_for_guestController extends Controller
     {
         $material_cost = new material_cost();
         $user = User::find($idUserApprove);
-        if ($user->can('create-gia-vat-tu')) {
+        if ($user->can('approve-gia-vat-tu')) {
             $user = User::find($idUserApprove);
             $arrTemp = [];
             $arrUpdate = [];

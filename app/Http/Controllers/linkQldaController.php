@@ -186,7 +186,7 @@ class linkQldaController extends Controller
         }
         //return linkQlda::create($request->all());
     }
-
+    // ham nay lay da ta tu trang quan ly du an ve
     public function storeTableDM(Request $request)
     {
         DB::beginTransaction();
@@ -352,7 +352,7 @@ class linkQldaController extends Controller
             ], 200);
         }
     }
-
+    // ham nay cho nguoi dung up dinh muc len tu phan mem
     public function CreateDinhMucContribute(Request $request)
     {
         $note_norm = new note_norms();
@@ -379,12 +379,12 @@ class linkQldaController extends Controller
             ]);
         //}
     }
-
+    // ham nay import dinh muc tu file excel
     public function CreateDinhMuc(Request $request, $idUserImport)
     {
         $note_norm = new note_norms();
         $user = User::find($idUserImport);
-        if ($user->can('create-gia-vat-tu')) {
+        if ($user->can('create-dinh-muc')) {
             $user = User::find($idUserImport);
             $arrTemp = [];
             $arrUpdate = [];
@@ -447,7 +447,7 @@ class linkQldaController extends Controller
                                         //'created_at' => $note_norm->freshTimestamp(),
                                         //'updated_at' => $note_norm->freshTimestamp(),
                                     ]);
-                                    DB::commit();
+                                DB::commit();
                             }
                         }
                     }
@@ -477,71 +477,31 @@ class linkQldaController extends Controller
                 'message' => 'Bạn không có quyền thực hiện tác vụ này',
             ], 200);
         }
-   
     }
 
 
     public function handleApprove(Request $request)
     {
-        DB::beginTransaction();
-        try {
-            $note_norm = new note_norms();
-            $get = DB::table('note_norms')
-                ->where('maDinhMuc', $request->maDinhMuc && $request->maDinhMuc !== "null" ? $request->maDinhMuc : null)
-                ->get();
-            if ($get->isEmpty()) { // trường hợp không có mã hoặc mã chưa tồn tại trong bảng norm thì thêm mới
-                DB::table('note_norms')
-                    ->where('id', $request->id)
-                    ->insert([
-                        'maDinhMuc' => $request->maDinhMuc && $request->maDinhMuc !== "null" ? $request->maDinhMuc : null,
-                        'tenMaDinhMuc' => $request->tenMaDinhMuc && $request->tenMaDinhMuc !== "null" ? $request->tenMaDinhMuc : null,
-                        'donVi_VI' => $request->donVi_VI && $request->donVi_VI !== "null" ? $request->donVi_VI : null,
-                        'tenCv_EN' => $request->tenCv_EN && $request->tenCv_EN !== "null" ? $request->tenCv_EN : null,
-                        'donVi_EN' => $request->donVi_EN && $request->donVi_EN !== "null" ? $request->donVi_EN : null,
-                        'ghiChuDinhMuc' => $request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null,
-                        'created_at' => $note_norm->freshTimestamp(),
-                        'updated_at' => $note_norm->freshTimestamp(),
-                    ]);
-                DB::table('approve_note_norms')
-                    ->where('id', $request->id)
-                    ->delete();
-                DB::commit();
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Lưu xong định mức',
-                ]);
-            } else {
-                foreach ($get as $getItem) {
-                    $noteDaco = $getItem->ghiChuDinhMuc;
-                    if ($noteDaco) {
-                        $noteUpdate = $noteDaco . ';' . ($request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null);
-                    } else {
-                        $noteUpdate = $request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null;
-                    }
-
-
+        $user = User::find($request->idUser);
+        if ($user->can('approve-dinh-muc')) {
+            DB::beginTransaction();
+            try {
+                $note_norm = new note_norms();
+                $get = DB::table('note_norms')
+                    ->where('maDinhMuc', $request->maDinhMuc && $request->maDinhMuc !== "null" ? $request->maDinhMuc : null)
+                    ->get();
+                if ($get->isEmpty()) { // trường hợp không có mã hoặc mã chưa tồn tại trong bảng norm thì thêm mới
                     DB::table('note_norms')
-                        ->where('id', $getItem->id)
-                        ->update([
-                            'maDinhMuc' => !$request->maDinhMuc || $request->maDinhMuc == "null" ||
-                                ($getItem->maDinhMuc && $getItem->maDinhMuc !== "null" && $request->maDinhMuc == $getItem->maDinhMuc) ?  $getItem->maDinhMuc :
-                                $request->maDinhMuc,
-                            'tenMaDinhMuc' => !$request->tenMaDinhMuc || $request->tenMaDinhMuc == "null" ||
-                                ($getItem->tenMaDinhMuc && $getItem->tenMaDinhMuc !== "null" && $request->tenMaDinhMuc == $getItem->tenMaDinhMuc) ? $getItem->tenMaDinhMuc :
-                                $request->tenMaDinhMuc,
-                            'donVi_VI' => !$request->donVi_VI || $request->donVi_VI == "null" ||
-                                ($getItem->donVi_VI && $getItem->donVi_VI !== "null" && $request->donVi_VI == $getItem->donVi_VI) ? $getItem->donVi_VI :
-                                $request->donVi_VI,
-                            'tenCv_EN' => !$request->tenCv_EN || $request->tenCv_EN == "null" ||
-                                ($getItem->tenCv_EN && $getItem->tenCv_EN !== "null" && $request->tenCv_EN == $getItem->tenCv_EN) ? $getItem->tenCv_EN :
-                                $request->tenCv_EN,
-                            'donVi_EN' => !$request->donVi_EN || $request->donVi_EN == "null" ||
-                                ($getItem->donVi_EN && $getItem->donVi_EN !== "null" && $request->donVi_EN == $getItem->donVi_EN) ? $getItem->donVi_EN :
-                                $request->donVi_EN,
-
-                            'ghiChuDinhMuc' => $noteUpdate,
-                            //'created_at' => $note_norm->freshTimestamp(),
-                            //'updated_at' => $note_norm->freshTimestamp(),
+                        ->where('id', $request->id)
+                        ->insert([
+                            'maDinhMuc' => $request->maDinhMuc && $request->maDinhMuc !== "null" ? $request->maDinhMuc : null,
+                            'tenMaDinhMuc' => $request->tenMaDinhMuc && $request->tenMaDinhMuc !== "null" ? $request->tenMaDinhMuc : null,
+                            'donVi_VI' => $request->donVi_VI && $request->donVi_VI !== "null" ? $request->donVi_VI : null,
+                            'tenCv_EN' => $request->tenCv_EN && $request->tenCv_EN !== "null" ? $request->tenCv_EN : null,
+                            'donVi_EN' => $request->donVi_EN && $request->donVi_EN !== "null" ? $request->donVi_EN : null,
+                            'ghiChuDinhMuc' => $request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null,
+                            'created_at' => $note_norm->freshTimestamp(),
+                            'updated_at' => $note_norm->freshTimestamp(),
                         ]);
                     DB::table('approve_note_norms')
                         ->where('id', $request->id)
@@ -551,25 +511,80 @@ class linkQldaController extends Controller
                         'code' => 200,
                         'message' => 'Lưu xong định mức',
                     ]);
+                } else {
+                    foreach ($get as $getItem) {
+                        $noteDaco = $getItem->ghiChuDinhMuc;
+                        if ($noteDaco) {
+                            $noteUpdate = $noteDaco . ';' . ($request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null);
+                        } else {
+                            $noteUpdate = $request->ghiChuDinhMuc && $request->ghiChuDinhMuc !== "null" ? $request->ghiChuDinhMuc : null;
+                        }
+
+
+                        DB::table('note_norms')
+                            ->where('id', $getItem->id)
+                            ->update([
+                                'maDinhMuc' => !$request->maDinhMuc || $request->maDinhMuc == "null" ||
+                                    ($getItem->maDinhMuc && $getItem->maDinhMuc !== "null" && $request->maDinhMuc == $getItem->maDinhMuc) ?  $getItem->maDinhMuc :
+                                    $request->maDinhMuc,
+                                'tenMaDinhMuc' => !$request->tenMaDinhMuc || $request->tenMaDinhMuc == "null" ||
+                                    ($getItem->tenMaDinhMuc && $getItem->tenMaDinhMuc !== "null" && $request->tenMaDinhMuc == $getItem->tenMaDinhMuc) ? $getItem->tenMaDinhMuc :
+                                    $request->tenMaDinhMuc,
+                                'donVi_VI' => !$request->donVi_VI || $request->donVi_VI == "null" ||
+                                    ($getItem->donVi_VI && $getItem->donVi_VI !== "null" && $request->donVi_VI == $getItem->donVi_VI) ? $getItem->donVi_VI :
+                                    $request->donVi_VI,
+                                'tenCv_EN' => !$request->tenCv_EN || $request->tenCv_EN == "null" ||
+                                    ($getItem->tenCv_EN && $getItem->tenCv_EN !== "null" && $request->tenCv_EN == $getItem->tenCv_EN) ? $getItem->tenCv_EN :
+                                    $request->tenCv_EN,
+                                'donVi_EN' => !$request->donVi_EN || $request->donVi_EN == "null" ||
+                                    ($getItem->donVi_EN && $getItem->donVi_EN !== "null" && $request->donVi_EN == $getItem->donVi_EN) ? $getItem->donVi_EN :
+                                    $request->donVi_EN,
+
+                                'ghiChuDinhMuc' => $noteUpdate,
+                                //'created_at' => $note_norm->freshTimestamp(),
+                                //'updated_at' => $note_norm->freshTimestamp(),
+                            ]);
+                        DB::table('approve_note_norms')
+                            ->where('id', $request->id)
+                            ->delete();
+                        DB::commit();
+                        return response()->json([
+                            'code' => 200,
+                            'message' => 'Lưu xong định mức',
+                        ]);
+                    }
                 }
+            } catch (Exception $exception) {
+                DB::rollBack();
+                $this->reportException($exception);
+
+                //$response = $this->renderException($request, $exception);
+
             }
-        } catch (Exception $exception) {
-            DB::rollBack();
-            $this->reportException($exception);
-
-            //$response = $this->renderException($request, $exception);
-
+        } else {
+            return response([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện tác vụ này',
+            ], 200);
         }
     }
 
-    public function handleDeleteNoteDmContribute($id)
+    public function handleDeleteNoteDmContribute(Request $request, $id)
     {
-        DB::table('approve_note_norms')
-            ->where('id', $id)
-            ->delete();
+        $user = User::find($request->idUser);
+        if ($user->can('delete-dinh-muc')) {
+            DB::table('approve_note_norms')
+                ->where('id', $id)
+                ->delete();
             return response()->json([
                 'code' => 200,
                 'message' => 'Đã xóa định mức',
             ]);
+        } else {
+            return response([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện tác vụ này',
+            ], 200);
+        }
     }
 }
