@@ -279,9 +279,7 @@ class PassportAuthController extends Controller
     //     if($pos!==false){
     //         echo('va day');
     //     }
-    $d = DB::table('approve_note_norms')
-                        ->where('id', 9)
-                        ->delete();
+  dd('123');
      
     // Gom nhóm với mỗi nhóm là 2 phần tử
     }

@@ -301,7 +301,18 @@ class linkQldaController extends Controller
                     'message' => 'Post not found',
                 ], 400);
             }
-            $updated = $itemupdate->fill($request->all())->save();
+            //$updated = $itemupdate->fill($request->all())->save();
+            $updated = DB::table('note_norms')
+            ->where('id', $request->id)
+            ->update([
+                'maDinhMuc' => $request->maDinhMuc ? $request->maDinhMuc : '',
+                'tenMaDinhMuc' => $request->tenMaDinhMuc ? $request->tenMaDinhMuc : '',
+                'ghiChuDinhMuc' => $request->ghiChuDinhMuc ? $request->ghiChuDinhMuc : '',
+                'donVi_VI' => $request->donVi_VI ? $request->donVi_VI : '',
+                'tenCv_EN' => $request->tenCv_EN ? $request->tenCv_EN : '',
+                'donVi_EN' => $request->donVi_EN ? $request->donVi_EN : '',
+                'url' => $request->url ? $request->url : '',
+            ]);
             if ($updated) {
                 return response()->json([
                     'success' => true,
@@ -571,6 +582,7 @@ class linkQldaController extends Controller
 
     public function handleDeleteNoteDmContribute(Request $request, $id)
     {
+        $a = $request->iddm;
         $user = User::find($request->idUser);
         if ($user->can('delete-dinh-muc')) {
             DB::table('approve_note_norms')
