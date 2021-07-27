@@ -12,6 +12,7 @@ use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\AdminConfigSystem;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\material_cost_for_guestController;
+use App\Http\Controllers\ArticlePostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,7 +166,10 @@ Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail
 Route::post('changePass', [ResetPasswordController:: class,'reset']);
 // lấy đường dãn file avatar
 Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
-
-
+/* API CHO DANG BAI VIET */
+// tao bai viết
+Route::post('createArticle', [ArticlePostController::class, 'createArticle']);
+// lấy bai dang co phan trang
+Route::get('getListArticle', [ArticlePostController::class, 'getListArticle']);
 
 Route::get('test', [PassportAuthController::class, 'test']);

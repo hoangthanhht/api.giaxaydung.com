@@ -291,6 +291,7 @@ class linkQldaController extends Controller
 
     public function updateDataDm(Request $request, $iddm, $iduser)
     {
+        $v = $request->id;
         $user = User::find($iduser);
         // $pm = $u->getAllPermissions($u->permissions[0]);
         if ($user->can('edit-dinh-muc')) {
