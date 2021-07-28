@@ -364,7 +364,7 @@ class material_cost_for_guestController extends Controller
             ], 200);
         }
     }
-
+// ham lay khu vuc theo tinh
     public function getInfoBaoGiaOfUser(Request $request)
     {
             
@@ -443,7 +443,6 @@ class material_cost_for_guestController extends Controller
 
                 }
             }
-            $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
             $arrKhuVuc = array_unique($arrKhuVuc, SORT_REGULAR);
             return response()->json([
                 'khuvuc' => $arrKhuVuc], 200);
@@ -535,7 +534,6 @@ class material_cost_for_guestController extends Controller
                 }
             }
             $arrThoiDiem = array_unique($arrThoiDiem, SORT_REGULAR);
-            $arrKhuVuc = array_unique($arrKhuVuc, SORT_REGULAR);
             return response()->json([
                 'thoidiem' => $arrThoiDiem], 200);
         }
@@ -1376,6 +1374,8 @@ class material_cost_for_guestController extends Controller
     }
 
     public function deleteBaoGia(Request $request) {
+        DB::beginTransaction();
+        try {
         $getRecoreDel = DB::table('material_cost_for_guests')
         ->where('tinh', $request->tinh && $request->tinh !== "null" ? $request->tinh : null)
         ->where('user_id', $request->user_id && $request->user_id !== "null" ? $request->user_id : null)
@@ -1402,6 +1402,18 @@ class material_cost_for_guestController extends Controller
 
                 }
         }
+        DB::commit();
+        return response()->json([
+            'success' => true,
+            'msg' => 'Hoàn tất xóa giá vật tư',
+        ]);
+    } catch (Exception $exception) {
+        DB::rollBack();
+        $this->reportException($exception);
+
+        //$response = $this->renderException($request, $exception);
+
+    }
     } 
 
     public function handleLike(Request $request)

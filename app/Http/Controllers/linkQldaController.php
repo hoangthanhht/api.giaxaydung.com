@@ -460,6 +460,10 @@ class linkQldaController extends Controller
                                         //'updated_at' => $note_norm->freshTimestamp(),
                                     ]);
                                 DB::commit();
+                                return response()->json([
+                                    'success' => true,
+                                    'msg' => 'Hoàn tất',
+                                ]);
                             }
                         }
                     }
@@ -476,7 +480,12 @@ class linkQldaController extends Controller
                 // để tạo bản ghi số lượng lớn nếu không sẽ gặp lỗi cors
                 // dung eloquen khi dung voi insert thi khong chen dc ngay vao create_at.phai dung ham create thi moi tao dc create_at
                 DB::commit();
-                return $arrData;
+          
+                return response()->json([
+                    'success' => true,
+                    'data'=>$arrData,
+                    'msg' => 'Hoàn tất',
+                ]);
             } catch (Exception $exception) {
                 DB::rollBack();
                 $this->reportException($exception);
