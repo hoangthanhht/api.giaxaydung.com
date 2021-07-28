@@ -172,4 +172,7 @@ Route::post('createArticle', [ArticlePostController::class, 'createArticle']);
 // lấy bai dang co phan trang
 Route::get('getListArticle', [ArticlePostController::class, 'getListArticle']);
 
+
+
+
 Route::get('test', [PassportAuthController::class, 'test']);
