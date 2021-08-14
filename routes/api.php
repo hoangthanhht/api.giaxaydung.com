@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminConfigSystem;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\material_cost_for_guestController;
 use App\Http\Controllers\ArticlePostController;
+use App\Http\Controllers\BackupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']
 Route::middleware('auth:api')->group(function () {
     Route::resource('post/bcday', ReportDayController::class);
 });
-//=======================================\\//================================//
+//=======================================\\//==========================================================//
 // trả đường dẫn theo mahcv trả về cho phàn mềm
 Route::get('mhcv/{id}', [linkQldaController::class, 'show']);
 //lấy đường dân về từ trang qlda
@@ -79,12 +80,8 @@ Route::post('handleDeleteNoteDmContribute/{iddm}', [linkQldaController::class, '
 //api đê approve dinh muc
 Route::post('handleApproveContribute', [linkQldaController::class, 'handleApprove']);
 
+//====================================\\//===============================================================//
 
-
-
-//====================================\\//====================================//
-// đưa dữ liệu từ bảng excel vào data base
-Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
 /* PHẦN UP GIÁ CỦA NGƯỜI DÙNG VÀ APPROVE CỦA QUẢN TRỊ */
 // đưa dữ liệu từ bảng excel vào data base do người dùng up
 Route::post('guestCreateGiaVT/{idUser}/{agreeOverride}', [material_cost_for_guestController::class, 'store']);
@@ -113,12 +110,9 @@ Route::post('getThoiDiemBaoGiaOfUser', [material_cost_for_guestController::class
 
 //=======================================\\//==========================================================//
 
-
-
-
-
-
 /* PHẦN LƯU VÀ CHỈNH SỬA TRONG BẢNG CHÍNH CỦA LƯU VẬT TƯ */
+// đưa dữ liệu từ bảng excel vào data base
+Route::post('createGiaVT/{idUser}/{agreeOverride}', [giaVatTuController::class, 'store']);
 //api đẻ chỉnh sửa gia vật tư
 Route::post('updateDataGiaVatTu/{id}/{iduser}', [giaVatTuController::class, 'updateDataGiaVatTu']);
 // lấy dữ liệu giá co phan trang về từ data base
@@ -131,6 +125,7 @@ Route::get('getListBaoGia', [giaVatTuController::class, 'getListBaoGiaProvince']
 Route::get('getPriceWithCodeMaterial/{codeMaterial}/{stringVT}', [giaVatTuController::class, 'getPriceWithCodeMaterial']);
 // trả về cho phần mềm báo giá theo từ khóa
 Route::get('getPriceWithKeyWord/{stringVT}/{keyWord}', [giaVatTuController::class, 'getPriceWithKeyWord']);
+//=======================================\\//==========================================================//
 /* PHẦN API CHO USER */
 // lấy dữ liệu user và role về từ data base
 Route::get('getDataTableUser', [AdminUserController::class, 'index']);
@@ -166,13 +161,18 @@ Route::post('sendEmailResetPassword', [ResetPasswordController:: class,'sendMail
 Route::post('changePass', [ResetPasswordController:: class,'reset']);
 // lấy đường dãn file avatar
 Route::get('getPathFile/{id}', [PassportAuthController::class, 'getPathFile']);
+//=======================================\\//==========================================================//
 /* API CHO DANG BAI VIET */
 // tao bai viết
 Route::post('createArticle', [ArticlePostController::class, 'createArticle']);
 // lấy bai dang co phan trang
 Route::get('getListArticle', [ArticlePostController::class, 'getListArticle']);
 
+//=======================================\\//==========================================================//
+/* API CHO BACKUP DU LIEU */
+Route::get('getListFile', [BackupController::class, 'index']);
+Route::get('downLoadFile/{id}', [BackupController::class, 'download']);
+Route::get('deleteFile/{id}', [BackupController::class, 'destroy']);
 
 
-
-Route::get('test', [PassportAuthController::class, 'test']);
+Route::get('test', [BackupController::class, 'index']);
