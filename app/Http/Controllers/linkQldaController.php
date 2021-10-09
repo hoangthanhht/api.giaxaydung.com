@@ -18,7 +18,7 @@ class linkQldaController extends Controller
         try {
             $mhcv = strtolower($mhcv);
             $mhcv = str_replace('.', '-', $mhcv);
-            $host = 'https://qlda.gxd.vn';
+            $host = 'https://dutoan.gxd.vn';
 
             $length = strlen($mhcv);
             $substr1 = substr($mhcv, 0, $length - 1) . '0';
