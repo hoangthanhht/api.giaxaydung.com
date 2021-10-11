@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/dl', function () {
-    return response()->download(public_path() . '/storage/bk/' . 'file1.txt');
+Route::get('/', function () {
+    return view('welcome');
 });
