@@ -41,11 +41,11 @@ class AuthServiceProvider extends ServiceProvider
                 ->action('Click vào đây', $url);
         });
 
-        Permission::get()->map(function($permission){
-            Gate::define($permission->slug, function($user) use ($permission){
-                $a = $user->hasPermission($permission);
-               return $user->hasPermission($permission);
-            });
-        });
+        // Permission::get()->map(function($permission){
+        //     Gate::define($permission->slug, function($user) use ($permission){
+        //         $a = $user->hasPermission($permission);
+        //        return $user->hasPermission($permission);
+        //     });
+        // });
     }
 }
