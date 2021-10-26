@@ -40,12 +40,12 @@ class AuthServiceProvider extends ServiceProvider
                 ->line('Nhấn vào nút phía dưới để kích hoạt tài khoản của bạn')
                 ->action('Click vào đây', $url);
         });
-
-        // Permission::get()->map(function($permission){
-        //     Gate::define($permission->slug, function($user) use ($permission){
-        //         $a = $user->hasPermission($permission);
-        //        return $user->hasPermission($permission);
-        //     });
-        // });
+        // loi root o day thi comment lai
+        Permission::get()->map(function($permission){
+            Gate::define($permission->slug, function($user) use ($permission){
+                $a = $user->hasPermission($permission);
+               return $user->hasPermission($permission);
+            });
+        });
     }
 }

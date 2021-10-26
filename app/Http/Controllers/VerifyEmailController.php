@@ -32,7 +32,7 @@ use MustVerifyEmail;
            
             event(new Verified($user));
         }
-        $url = "http://thunghiem.gxd.vn/#/login";
+        $url = "https://giaxaydung.com/#/login";
         //return view('welcome');
         return Redirect::to($url);// đẩy đến 1 đường link bên ngoài sau khi người dùng xác minh email
     }

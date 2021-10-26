@@ -40,12 +40,12 @@ class ResetPasswordRequest extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('http://thunghiem.gxd.vn//#/changepass/' . $this->token);
+        $url = url('https://giaxaydung.com/#/changepass/' . $this->token);
         //$url = "http://localhost:8081/#/changepass";
         return (new MailMessage)
-            ->line('You are receiving this email because we received a password reset request for your account.')
+            ->line('Email xác thực việc thay đổi password')
             ->action('Reset Password', url($url))
-            ->line('If you did not request a password reset, no further action is required.');
+            ->line('Nếu không chuyển đến trang đổi password được thì hãy copy đường link dưới đây và dán vào trình duyệt');
     }
 
     /**
