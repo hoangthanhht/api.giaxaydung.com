@@ -13,7 +13,7 @@ Các bước khi cài đặt project
 11. php artisan config:cache để cho nhận cấu hình mới thay đổi
 ## 1 số lưu ý.
 1. cần dùng tài khoản user để clone project không dùng root
-2. sau khi cài đặt xong pro thì cần phân full quyền cho thư mục storage cảu laravel cho user www-data
+2. sau khi cài đặt xong pro thì cần phân full quyền cho thư mục storage của laravel cho user www-data(chmod -R 777 storage)
 3. trong file config của pro thì cần chú ý đường dẫn đến phiên bản php mà project chạy
 4. cấu hình đúng tên miền và tên thư mục root trỏ đến public của larave chứa index.php
 5. cấu hình các file mặc định khi load đầu tiên là index.php hoặc index.html, htm
