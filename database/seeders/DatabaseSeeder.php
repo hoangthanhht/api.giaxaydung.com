@@ -129,8 +129,8 @@ class DatabaseSeeder extends Seeder
         $create_perm = Permission::where('slug','create-users')->first();
 
         $create_1 = new User();
-        $create_1->name = 'user1';
-        $create_1->email = 'user1@gmail.com';
+        $create_1->name = 'MrTheAnh';
+        $create_1->email = 'theanh@gmail.com';
         $create_1->password = bcrypt('123123');
         $create_1->save();
         $create_1->roles()->attach($admin_role);
